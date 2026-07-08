@@ -8,7 +8,7 @@
 #include <string>
 #include <thread>
 
-#include "json.hpp"
+#include "json/json.hpp"
 
 namespace NeuroWebsocketpp {
     enum Priority {

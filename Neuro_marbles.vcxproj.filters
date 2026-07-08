@@ -13,48 +13,75 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\SDK">
+      <UniqueIdentifier>{024818a3-d9d3-4614-a0fb-377389bfe87b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SDK">
+      <UniqueIdentifier>{b790d591-4893-4068-bc0a-ef33c235966b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Gamemodes">
+      <UniqueIdentifier>{1935cca3-d458-453c-8add-96a2c99dc399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Gamemodes">
+      <UniqueIdentifier>{317717ff-3b38-4071-ae46-37ecddad8a9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameRaceActions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SDK\Basic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\CoreUObject_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\Engine_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\W_MOSButton_Default_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\W_MOSButton_Small_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\W_UserFacingExperienceDescription_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\W_UserFacingExperienceSelector_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\MarblesOnStream_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\W_RaceUserFacingExperience_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\UMG_functions.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\SDK</Filter>
     </ClCompile>
     <ClCompile Include="SDK\CommonUI_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\CoreUObject_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\Engine_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\MarblesOnStream_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\UMG_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\W_MOSButton_Small_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\W_RaceUserFacingExperience_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\W_UserFacingExperienceDescription_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\W_MOSButton_Default_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\W_UserFacingExperienceSelector_functions.cpp">
+      <Filter>Source Files\SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\NeuroMarblesClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamemodes\Menu.cpp">
+      <Filter>Source Files\Gamemodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamemodes\Race.cpp">
+      <Filter>Source Files\Gamemodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamemodes\Royale.cpp">
+      <Filter>Source Files\Gamemodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamemodes\Race_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamemodes\Menu_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,16 +89,28 @@
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIHelper.h">
+    <ClInclude Include="NeuroGameSDK\NeuroGameSdkWebsocketpp.hpp">
+      <Filter>Header Files\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameRaceActions.h">
+    <ClInclude Include="json\json.hpp">
+      <Filter>Header Files\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="GameState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="json.hpp">
+    <ClInclude Include="Client\NeuroMarblesClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NeuroGameSdkWebsocketpp.hpp">
+    <ClInclude Include="Gamemodes\GameModes.h">
+      <Filter>Header Files\Gamemodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamemodes\Menu.h">
+      <Filter>Header Files\Gamemodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamemodes\Race.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

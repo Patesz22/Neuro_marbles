@@ -132,8 +132,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GameRaceActions.cpp" />
+    <ClCompile Include="Gamemodes\Menu_functions.cpp" />
+    <ClCompile Include="Gamemodes\Race_functions.cpp" />
+    <ClCompile Include="Gamemodes\Royale.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Gamemodes\Menu.cpp" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="Client\NeuroMarblesClient.cpp" />
+    <ClCompile Include="Gamemodes\Race.cpp" />
     <ClCompile Include="SDK\Basic.cpp" />
     <ClCompile Include="SDK\CommonUI_functions.cpp" />
     <ClCompile Include="SDK\CoreUObject_functions.cpp" />
@@ -145,14 +151,17 @@
     <ClCompile Include="SDK\W_RaceUserFacingExperience_functions.cpp" />
     <ClCompile Include="SDK\W_UserFacingExperienceDescription_functions.cpp" />
     <ClCompile Include="SDK\W_UserFacingExperienceSelector_functions.cpp" />
-    <ClCompile Include="UIHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameRaceActions.h" />
-    <ClInclude Include="json.hpp" />
+    <ClInclude Include="Gamemodes\GameModes.h" />
+    <ClInclude Include="Gamemodes\Menu.h" />
+    <ClInclude Include="Gamemodes\Race.h" />
+    <ClInclude Include="GameState.h" />
+    <ClInclude Include="json\json.hpp" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="NeuroGameSdkWebsocketpp.hpp" />
-    <ClInclude Include="UIHelper.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="NeuroGameSDK\NeuroGameSdkWebsocketpp.hpp" />
+    <ClInclude Include="Client\NeuroMarblesClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

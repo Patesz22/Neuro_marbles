@@ -6,36 +6,16 @@
 #include <cstdio>
 #include <string>
 #include <time.h>
-
-#include "SDK.hpp"
-#include "MenuNavigation.h"
-#include "GameRaceActions.h"
-#include "misc.h"
-#include "json.hpp"
+#include <windows.h>
 #include <cmath>
 
-#include <windows.h>
+#include "SDK.hpp"
+#include "NeuroGameSDK/NeuroGameSdkWebsocketpp.hpp"
+#include "Client/NeuroMarblesClient.h"
+#include "misc.h"
+#include "json/json.hpp"
+#include "GameState.h"
 
 
-extern bool bBotActive;
-extern std::string GameName;
-extern std::wstring ActiveMatchID;
-extern volatile bool bShouldClickStart;
-extern volatile bool bClickAcknowledged;
-extern volatile bool bMatchIDIntercepted;
-
-
-// State Machine
-enum ENeuroState {
-    STAGE_Welcome_Continue = 0,
-    STAGE_Gamemode_Select,
-    STAGE_Race_Map_Select,
-    STAGE_Race_Lobby_Start,
-    STAGE_Race_Game_Joining,
-    STAGE_Race_Game_Waiting,
-    STAGE_Race_Game_Started,
-    STAGE_Race_Game_Finished,
-    STAGE_Race_Game_Finished_Waiting
-};
 
 

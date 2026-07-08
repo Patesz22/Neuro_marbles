@@ -16,4 +16,6 @@ todo
 * increase the lobby size
   * there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
   * maybe ask the devs to allow us to use lobbies with more players
+* Add twitch chat manual override for specific user, with the following functions:
+  * Sometimes before the results it gets stuck at "Awaiting results" -> ForceProceedToNextMap();
 

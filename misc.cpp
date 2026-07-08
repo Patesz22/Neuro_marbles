@@ -52,3 +52,24 @@ bool SafeCopyMemory(void* destination, void* source, size_t size)
         return false;
     }
 }
+
+void InspectUIWidgets()
+{
+    for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+    {
+        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+        if (!Obj || Obj->IsDefaultObject()) continue;
+
+        if (Obj->IsA(SDK::UUserWidget::StaticClass()))
+        {
+            SDK::UUserWidget* Widget = static_cast<SDK::UUserWidget*>(Obj);
+
+            if (Widget->IsHovered())
+            {
+                printf("\n[UI WIDGET CLICKED]\n");
+                printf("Instance: %s\n", Widget->GetName().c_str());
+                printf("Class:    %s\n", Widget->GetFullName().c_str());
+            }
+        }
+    }
+}
