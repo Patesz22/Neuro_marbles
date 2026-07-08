@@ -302,7 +302,6 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
             {
                 bWasNumpad3Pressed = true;
                 printf("\nNum3 pressed\n");
-                LogCurrentMatchID();
             }
         }
         else
