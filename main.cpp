@@ -571,6 +571,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 
                 case STAGE_Race_Game_Finished_Waiting:
                 {
+
                     Sleep(100);
                     break;
                 }
@@ -609,49 +610,4 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
         if (hThread) CloseHandle(hThread);
     }
     return TRUE;
-}
-
-
-void LogCurrentMatchID()
-{
-    SDK::AMOSGameMode* GameMode = nullptr;
-
-    // 1. Find the active GameMode using safe reads
-    for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
-    {
-        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-
-        int32_t dummy; float dummyF;
-        if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
-
-        // Ensure it's the active GameMode, not the Default Object template
-        if (Obj->IsA(SDK::AMOSGameMode::StaticClass()) && !Obj->IsDefaultObject())
-        {
-            GameMode = static_cast<SDK::AMOSGameMode*>(Obj);
-            break;
-        }
-    }
-
-    // 2. Read and Log the MatchID
-    if (GameMode)
-    {
-        // Read the MatchID safely from the GameMode memory (Offset 0x03B8)
-        uintptr_t matchIdPtr = reinterpret_cast<uintptr_t>(GameMode) + 0x03B8;
-
-        SDK::FString* MatchIDString = reinterpret_cast<SDK::FString*>(matchIdPtr);
-
-        // Verify the string data actually exists to prevent a null pointer crash
-        if (MatchIDString && MatchIDString->getData())
-        {
-            printf("[Neuro] Active Race MatchID: %ls\n", MatchIDString->getData());
-        }
-        else
-        {
-            printf("[!] MatchID is currently empty (Still loading or API failed).\n");
-        }
-    }
-    else
-    {
-        printf("[!] No active race running. GameMode not found.\n");
-    }
 }

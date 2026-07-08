@@ -8,8 +8,9 @@
 #include <time.h>
 
 #include "SDK.hpp"
-#include "UIHelper.h"
+#include "MenuNavigation.h"
 #include "GameRaceActions.h"
+#include "misc.h"
 #include "json.hpp"
 #include <cmath>
 
@@ -24,10 +25,7 @@ extern volatile bool bClickAcknowledged;
 extern volatile bool bMatchIDIntercepted;
 
 
-void LogCurrentMatchID();
-
-
-// Bot State Machine
+// State Machine
 enum ENeuroState {
     STAGE_Welcome_Continue = 0,
     STAGE_Gamemode_Select,

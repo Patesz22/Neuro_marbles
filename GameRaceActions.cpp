@@ -59,148 +59,6 @@ void __fastcall Hooked_ProcessEvent(const SDK::UObject* pThis, SDK::UFunction* F
     }
 }
 
-
-bool SelectExperienceCard(const std::string& targetModeName)
-{
-    SDK::UMOSUserFacingExperienceDescription* TargetData = nullptr;
-    SDK::UW_UserFacingExperienceSelector_C* SelectorMenu = nullptr;
-
-    // 1. Find the Selector Menu (Scan BACKWARDS for the active Transient UI)
-    for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
-    {
-        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-        if (!Obj || Obj->IsDefaultObject()) continue;
-
-        if (Obj->IsA(SDK::UW_UserFacingExperienceSelector_C::StaticClass()))
-        {
-            std::string fullName = Obj->GetFullName();
-            if (fullName.find("Transient") != std::string::npos)
-            {
-                SelectorMenu = static_cast<SDK::UW_UserFacingExperienceSelector_C*>(Obj);
-                break; // Found the active menu container!
-            }
-        }
-    }
-
-    // 2. Find the Data Asset (Scan FORWARDS because Data Assets are persistent, not Transient)
-    for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
-    {
-        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-        if (!Obj || Obj->IsDefaultObject()) continue;
-
-        // Note the class change: We are looking for UMOS... not UW_...
-        if (Obj->IsA(SDK::UMOSUserFacingExperienceDescription::StaticClass()))
-        {
-            std::string objName = Obj->GetName();
-
-            // Check if the internal data name contains "Race"
-            if (objName.find(targetModeName) != std::string::npos)
-            {
-                printf(">> [STAGE 2] Locked onto Data Asset: %s <<\n", objName.c_str());
-                TargetData = static_cast<SDK::UMOSUserFacingExperienceDescription*>(Obj);
-                break; // Found the data!
-            }
-        }
-    }
-
-    // 3. Fire the Native Engine Event!
-    if (TargetData && SelectorMenu)
-    {
-        printf(">> [STAGE 2] Firing the literal UI Mouse-Click Event! <<\n");
-
-        // Holy function name
-        SelectorMenu->BndEvt__W_UserFacingExperienceSelector_ExperienceDescriptionsListView_K2Node_ComponentBoundEvent_0_SimpleListItemEventDynamic__DelegateSignature(TargetData);
-
-        return true;
-    }
-
-    return false;
-}
-
-
-bool ClickNativeRandomButton()
-{
-    SDK::UObject* ParentMapList = nullptr;
-    SDK::UObject* RandomButton = nullptr;
-
-    // 1. Find BOTH the MapList Container and the physical Random Button
-    for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
-    {
-        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-        if (!Obj || Obj->IsDefaultObject()) continue;
-
-        if (Obj->IsA(SDK::UUserWidget::StaticClass()))
-        {
-            std::string fullName = Obj->GetFullName();
-
-            if (!ParentMapList &&
-                fullName.find("W_RaceExperienceMapList_C") != std::string::npos &&
-                fullName.find("Transient") != std::string::npos)
-            {
-                ParentMapList = Obj;
-            }
-
-            if (!RandomButton &&
-                fullName.find("RandomButton") != std::string::npos &&
-                fullName.find("Transient") != std::string::npos)
-            {
-                RandomButton = Obj;
-            }
-
-            if (ParentMapList && RandomButton) break;
-        }
-    }
-
-    if (!ParentMapList || !RandomButton) return false;
-
-    // 2. Fetch the exact Developer Function from global memory
-    SDK::UFunction* TargetFunc = nullptr;
-    for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
-    {
-        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-        if (Obj && Obj->IsA(SDK::UFunction::StaticClass()))
-        {
-            if (Obj->GetName().find("BndEvt__W_RaceUserFacingExperience_RandomButton_K2Node_ComponentBoundEvent_3_CommonButtonBaseClicked__DelegateSignature") != std::string::npos)
-            {
-                TargetFunc = static_cast<SDK::UFunction*>(Obj);
-                break;
-            }
-        }
-    }
-
-    // 3. The "Russian Roulette" Execution
-    if (TargetFunc)
-    {
-        struct FCommonButtonBaseClicked_Params
-        {
-            SDK::UObject* Button;
-        };
-
-        FCommonButtonBaseClicked_Params Params;
-        Params.Button = RandomButton;
-
-        // Seed C++ with your PC's real-time clock
-        srand((unsigned int)time(NULL));
-
-        // Pick a random number of clicks between 15 and 65
-        int randomClicks = (rand() % 50) + 15;
-
-        printf(">> [STAGE 3] Defeating Static Seed! Firing Random Button %d times... <<\n", randomClicks);
-
-        // Rapid-fire the native function to scramble the game's internal RNG state
-        for (int i = 0; i < randomClicks; i++)
-        {
-            ParentMapList->ProcessEvent(TargetFunc, &Params);
-        }
-
-        printf(">> [STAGE 3] Map successfully randomized! <<\n");
-        return true;
-    }
-
-    return false;
-}
-
-
 bool StartRaceMatch()
 {
     SDK::UW_RaceUserFacingExperience_C* RaceMenu = nullptr;
@@ -388,7 +246,7 @@ int GetRaceFinishedPlayerCount()
 }
 
 
-void ForceProceedToNextMap()
+void ForceProceedToResults()
 {
     SDK::URaceWinnerWidgetY2* winnerWidget = nullptr;
     for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
@@ -411,5 +269,204 @@ void ForceProceedToNextMap()
     else
     {
         printf("RaceWinnerWidgetY2 not found in memory.\n");
+    }
+}
+
+
+std::vector<RaceResult> ExtractResultsFromListView(int maxPlayersToFetch)
+{
+    std::vector<RaceResult> resultsArray(maxPlayersToFetch);
+    SDK::URaceResultsWidgetY2* resultsWidget = nullptr;
+
+    // 1. Sweep BACKWARDS to find the LIVE Results Widget (Ignores Ghosts!)
+    for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+    {
+        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+
+        int32_t d; float df;
+        if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+
+        if (Obj->IsA(SDK::URaceResultsWidgetY2::StaticClass()) && !Obj->IsDefaultObject())
+        {
+            // Ensure we are grabbing the Transient (on-screen) widget
+            if (Obj->GetFullName().find("Transient") != std::string::npos)
+            {
+                resultsWidget = static_cast<SDK::URaceResultsWidgetY2*>(Obj);
+                break;
+            }
+        }
+    }
+
+    if (!resultsWidget || !resultsWidget->RaceResultsListView)
+    {
+        printf("[!] Could not find active Race Results Widget.\n");
+        return resultsArray;
+    }
+
+    auto* listView = resultsWidget->RaceResultsListView;
+    int totalPlayers = listView->ListItems.Num();
+
+    // 2. Loop through the players
+    for (int i = 0; i < totalPlayers; i++)
+    {
+        SDK::UObject* rawItem = listView->ListItems[i];
+        if (!rawItem) continue;
+
+        uintptr_t baseAddr = reinterpret_cast<uintptr_t>(rawItem);
+
+        int32_t rank = *reinterpret_cast<int32_t*>(baseAddr + 0xC8);
+        float metricValue = *reinterpret_cast<float*>(baseAddr + 0xCC); // Time OR Distance
+        int32_t statusFlag = *reinterpret_cast<int32_t*>(baseAddr + 0xF0);
+
+        int placementIndex = rank - 1;
+
+        if (placementIndex >= 0 && placementIndex < maxPlayersToFetch)
+        {
+            resultsArray[placementIndex].Rank = rank;
+
+            // Optional: Print raw memory for the top 3 to verify status flags
+            if (rank <= 3)
+            {
+                printf("[DEBUG] Rank %d Raw -> StatusFlag: %d | Metric: %.3f\n", rank, statusFlag, metricValue);
+            }
+
+            // Status Logic (Assuming > 0 means finished)
+            if (statusFlag > 0)
+            {
+                resultsArray[placementIndex].RaceTime = metricValue;
+
+                int minutes = static_cast<int>(std::floor(metricValue / 60.0f));
+                int seconds = static_cast<int>(std::floor(std::fmod(metricValue, 60.0f)));
+                int milliseconds = static_cast<int>(std::round(std::fmod(metricValue, 1.0f) * 1000.0f));
+
+                printf("[Neuro] Player %d finished! Time: %02d:%02d.%03d\n", rank, minutes, seconds, milliseconds);
+            }
+            else
+            {
+                resultsArray[placementIndex].RaceTime = -1.0f;
+                printf("[Neuro] Player %d DNF'd! Distance: %.2f\n", rank, metricValue);
+            }
+
+            // RAW MEMORY STRING EXTRACTION
+            uintptr_t primaryNameAddr = baseAddr + 0x38;
+            uintptr_t fallbackNameAddr = baseAddr + 0x28;
+
+            wchar_t* nameData = *reinterpret_cast<wchar_t**>(primaryNameAddr);
+            int32_t nameCount = *reinterpret_cast<int32_t*>(primaryNameAddr + 8);
+
+            bool bNameFound = false;
+
+            // Try to extract the Primary Display Name (0x38)
+            if (nameData != nullptr && nameCount > 0 && nameCount < 100)
+            {
+                wchar_t tempBuffer[128] = { 0 };
+                size_t bytesToCopy = (nameCount - 1) * sizeof(wchar_t);
+
+                if (SafeCopyMemory(tempBuffer, nameData, bytesToCopy))
+                {
+                    resultsArray[placementIndex].PlayerName = std::wstring(tempBuffer, nameCount - 1);
+                    bNameFound = true;
+                }
+            }
+
+            // Try the Fallback Internal Name (0x28) if the Primary failed
+            if (!bNameFound)
+            {
+                wchar_t* fallbackData = *reinterpret_cast<wchar_t**>(fallbackNameAddr);
+                int32_t fallbackCount = *reinterpret_cast<int32_t*>(fallbackNameAddr + 8);
+
+                if (fallbackData != nullptr && fallbackCount > 0 && fallbackCount < 100)
+                {
+                    wchar_t tempBuffer[128] = { 0 };
+                    size_t bytesToCopy = (fallbackCount - 1) * sizeof(wchar_t);
+
+                    if (SafeCopyMemory(tempBuffer, fallbackData, bytesToCopy))
+                    {
+                        resultsArray[placementIndex].PlayerName = std::wstring(tempBuffer, fallbackCount - 1);
+                        bNameFound = true;
+                    }
+                }
+            }
+
+            if (!bNameFound)
+            {
+                resultsArray[placementIndex].PlayerName = L"Unknown";
+            }
+
+            resultsArray[placementIndex].bIsValid = true;
+        }
+    }
+
+    return resultsArray;
+}
+
+
+void ProcessRaceResults(const std::string& actionId, const int playersWanted)
+{
+    std::vector<RaceResult> topPlayers = ExtractResultsFromListView(playersWanted);
+
+    printf("\n========== MARBLES ON STREAM: RACE RESULTS ==========\n");
+
+    int validCount = 0;
+    for (int i = 0; i < playersWanted; i++)
+    {
+        if (topPlayers[i].bIsValid)
+        {
+            validCount++;
+            printf("#%d - %S (Score: %d | Time: %.2fs)\n",
+                topPlayers[i].Rank,
+                topPlayers[i].PlayerName.c_str(),
+                topPlayers[i].Score,
+                topPlayers[i].RaceTime);
+        }
+    }
+
+    if (validCount == 0) {
+        printf("[!] No results found. Is the race finished?\n");
+    }
+    printf("=====================================================\n\n");
+}
+
+
+void TurnCamera()
+{
+    SDK::APlayerCameraManager* cameraManager = nullptr;
+
+    // 1. Find the active Camera Manager
+    for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+    {
+        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+        if (Obj && Obj->IsA(SDK::APlayerCameraManager::StaticClass()) && !Obj->IsDefaultObject())
+        {
+            cameraManager = static_cast<SDK::APlayerCameraManager*>(Obj);
+            break;
+        }
+    }
+
+    if (cameraManager && cameraManager->PCOwner)
+    {
+        SDK::APlayerController* playerController = cameraManager->PCOwner;
+
+        SDK::FRotator currentRot = playerController->K2_GetActorRotation();
+
+        printf("Pitch: %lf, Yaw: %lf, Roll: %lf", currentRot.Pitch, currentRot.Yaw, currentRot.Roll);
+        currentRot.Pitch = -89.0f; // top down view
+        currentRot.Yaw = -113.0f;
+
+        // ?? always look in the ball roll direction ??
+
+        cameraManager->FreeCamDistance = 1500.0f;
+        //// Force the controller's physical body to rotate
+        playerController->K2_SetActorRotation(currentRot, false);
+
+        //// Force the camera manager's physical body to rotate
+        cameraManager->K2_SetActorRotation(currentRot, false);
+
+        // Force the internal engine "Look" rotation (This is usually the most important one in Free Cam!)
+        playerController->SetControlRotation(currentRot);
+    }
+    else
+    {
+        printf("[!] Camera Manager or Player Controller not found.\n");
     }
 }
