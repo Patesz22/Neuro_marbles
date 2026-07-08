@@ -88,7 +88,8 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
             }
             else
             {
-                if (searchTick % 80 == 0) {
+                if (searchTick % 80 == 0) 
+                {
                     printf("[Neuro DEBUG] Waiting for Neuro at state: %d\n", gameState.CurrentState);
                 }
 

@@ -7,7 +7,7 @@ todo
 * send neuro context on race results (finished, DNF) - without context flooding
 * make camera automatically rotate on race start
 * action for "exit to main menu" after results
-* action for "next random race" after results
+* ~~action for "next random race" after results~~
 * make the code "neuro proof"
 * add modifier actions
   * I've seen a SetGravity function eg.

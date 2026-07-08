@@ -22,6 +22,8 @@ namespace Mode_Race
     NeuroWebsocketpp::Action actRaceFocusSecond("race_focus_second_place", "Focus the second place player in view", empty_schema);
     NeuroWebsocketpp::Action actRaceFocusThird("race_focus_third_place", "Focus the third place player in view", empty_schema);
     NeuroWebsocketpp::Action actRotateCamera("rotate_cam", "Rotate the camera so chat can see", empty_schema);
+    NeuroWebsocketpp::Action actResultMainMenu("result_exit_main_menu", "Exit to main menu after seeing the results.", empty_schema);
+    NeuroWebsocketpp::Action actResultNextRandomMap("result_next_random_map", "Start the next map, randomly", empty_schema);
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state)
     {
@@ -48,7 +50,7 @@ namespace Mode_Race
 
                 while (!bClickAcknowledged) { Sleep(100); }
 
-                printf("[Bot] Blueprint Injected! Waiting for map to load...\n");
+                printf("Blueprint Injected! Waiting for map to load...\n");
                 Sleep(8000);
                 printf("Waiting finished! Skipping intros...\n");
                 PressKey(VK_SPACE);
@@ -108,8 +110,22 @@ namespace Mode_Race
             break;
 
         case STAGE_Race_Game_Finished:
+
         case STAGE_Race_Game_At_Results:
-            // Handled in Idle / Post-Match logic
+            if (strcmp(state.LastNeuroAction.c_str(), "result_exit_main_menu") == 0)
+            {
+                //ClickNextRandomTrack();
+                state.bNeuroDidAction = false;
+                state.CurrentState = STAGE_Gamemode_Select;
+                Sleep(1000);
+            }
+            else if (strcmp(state.LastNeuroAction.c_str(), "result_next_random_map") == 0)
+            {
+                ClickNextRandomTrack();
+                state.bNeuroDidAction = false;
+                state.CurrentState = STAGE_Race_Game_Joining;
+                Sleep(1000);
+            }
             break;
         }
     }
@@ -186,16 +202,18 @@ namespace Mode_Race
 
         case STAGE_Race_Game_Finished:
             Sleep(3000);
-            PressInGameButton("ContinueButton");
+            //PressInGameButton("ContinueButton"); // not working
+
+            ForceProceedToResults();
             printf("[Neuro] Race finished, continue button pressed.\n");
 
             Sleep(1000);
             ProcessRaceResults(maxLobbySize);
+            client.sendRegisterActions({ actResultNextRandomMap });
             state.CurrentState = STAGE_Race_Game_At_Results;
             break;
 
         case STAGE_Race_Game_At_Results:
-            client.sendRegisterActions({});
             Sleep(100);
             break;
         }
