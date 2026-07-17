@@ -6,6 +6,7 @@
 bool bBotActive = false;
 std::wstring ActiveMatchID = L"";
 std::string GameName = "Marbles on Stream";
+ENeuroState lastState = static_cast<ENeuroState>(-1);
 
 bool IsMenuState(ENeuroState state) 
 {
@@ -68,11 +69,6 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
         // THE ROUTER
         if (bBotActive)
         {
-            if (client.isWaitingForForcedAction())
-            {
-                Sleep(100);
-                continue;
-            }
 
             if (gameState.bNeuroDidAction)
             {

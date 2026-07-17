@@ -3,13 +3,14 @@ todo
 * more gamemodes
 * ~~Organize project files~~
 * support for community maps
-* change "force action menu navigation" to normal action based
+* ~~change "force action menu navigation" to normal action based~~
 * send neuro context on race results (finished, DNF) - without context flooding
 * make camera automatically rotate on race start
-* action for "exit to main menu" after results
+* ~~action for "exit to main menu" after results~~
 * ~~action for "next random race" after results~~
 * make the code "neuro proof"
-* send context on what's happening in game, so neuro can sort of "commentate"
+* ~~send context on what's happening in game, so neuro can sort of "commentate"~~
+  * improvements maybe?
 * add modifier actions
   * I've seen a SetGravity function eg.
 * action for kicking player(s) + send neuro context on joined players

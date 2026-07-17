@@ -30,9 +30,12 @@ namespace Mode_Race
     int GetRaceFinishedPlayerCount();
 
     void ForceProceedToResults();
+    std::vector<RaceResult> ExtractLiveScoreboard(int maxPlayersToFetch);
     std::vector<RaceResult> ExtractResultsFromListView(int maxPlayersToFetch);
     void ProcessRaceResults(const int playersWanted);
 
     void TurnCamera();
     bool ClickNextRandomTrack();
+    bool ClickReturnToRaceMenu();
+
 }

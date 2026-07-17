@@ -4,6 +4,8 @@
 #include "Menu.h"
 #include "Race.h"
 
+extern ENeuroState lastState;
+
 namespace Mode_Race
 {
 
@@ -11,6 +13,14 @@ namespace Mode_Race
     static bool lobbyFull = false;
     static int maxLobbySize = -1;
     static bool bIsWaitingForResults = false;
+
+    // Commentary
+    static std::wstring currentObservedLeader = L"";
+    static std::wstring previousLeader = L"";
+    static int consecutiveLeaderSeconds = 0;
+    static std::wstring lastAnnouncedLeader = L"";
+    static int lastAnnouncementTick = 0;
+    static int lastDeadCount = 0;
 
     // Race-Specific Neuro Actions
     nlohmann::json empty_schema;
@@ -22,7 +32,7 @@ namespace Mode_Race
     NeuroWebsocketpp::Action actRaceFocusSecond("race_focus_second_place", "Focus the second place player in view", empty_schema);
     NeuroWebsocketpp::Action actRaceFocusThird("race_focus_third_place", "Focus the third place player in view", empty_schema);
     NeuroWebsocketpp::Action actRotateCamera("rotate_cam", "Rotate the camera so chat can see", empty_schema);
-    NeuroWebsocketpp::Action actResultMainMenu("result_exit_main_menu", "Exit to main menu after seeing the results.", empty_schema);
+    NeuroWebsocketpp::Action actResultMainMenu("result_exit_race_menu", "Exit to main menu after seeing the results.", empty_schema);
     NeuroWebsocketpp::Action actResultNextRandomMap("result_next_random_map", "Start the next map, randomly", empty_schema);
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state)
@@ -68,7 +78,6 @@ namespace Mode_Race
                 printf("[Neuro] STAGE 5: Neuro joined the game!\n");
                 state.CurrentState = STAGE_Race_Game_Waiting;
                 state.bNeuroDidAction = false;
-                client.sendRegisterActions({ actRaceStartGame });
             }
             break;
 
@@ -77,31 +86,29 @@ namespace Mode_Race
             {
                 state.CurrentState = STAGE_Race_Game_Started;
                 state.bNeuroDidAction = false;
-                client.sendUnregisterActions({ "race_start_game" });
-                client.sendRegisterActions({ actRaceFocusFirst, actRaceFocusSecond, actRaceFocusThird, actRotateCamera });
             }
             break;
 
         case STAGE_Race_Game_Started:
-            if (strcmp(state.LastNeuroAction.c_str(), "race_focus_first_place") == 0)
+            if (state.LastNeuroAction.compare("race_focus_first_place") == 0)
             {
                 PressKey('1');
                 state.bNeuroDidAction = false;
                 Sleep(1000);
             }
-            else if (strcmp(state.LastNeuroAction.c_str(), "race_focus_second_place") == 0)
+            else if (state.LastNeuroAction.compare("race_focus_second_place") == 0)
             {
                 PressKey('2');
                 state.bNeuroDidAction = false;
                 Sleep(1000);
             }
-            else if (strcmp(state.LastNeuroAction.c_str(), "race_focus_third_place") == 0)
+            else if (state.LastNeuroAction.compare("race_focus_third_place") == 0)
             {
                 PressKey('3');
                 state.bNeuroDidAction = false;
                 Sleep(1000);
             }
-            else if (strcmp(state.LastNeuroAction.c_str(), "rotate_cam") == 0)
+            else if (state.LastNeuroAction.compare("rotate_cam") == 0)
             {
                 TurnCamera();
                 state.bNeuroDidAction = false;
@@ -110,19 +117,24 @@ namespace Mode_Race
             break;
 
         case STAGE_Race_Game_Finished:
+            break;
 
         case STAGE_Race_Game_At_Results:
-            if (strcmp(state.LastNeuroAction.c_str(), "result_exit_main_menu") == 0)
+            if (state.LastNeuroAction.compare("result_exit_race_menu") == 0)
             {
-                //ClickNextRandomTrack();
+                if (ClickReturnToRaceMenu()) 
+                {
+                    state.CurrentState = STAGE_Race_Map_Select;
+                }
                 state.bNeuroDidAction = false;
-                state.CurrentState = STAGE_Gamemode_Select;
                 Sleep(1000);
             }
-            else if (strcmp(state.LastNeuroAction.c_str(), "result_next_random_map") == 0)
+            else if (state.LastNeuroAction.compare("result_next_random_map") == 0)
             {
-                ClickNextRandomTrack();
-                state.bNeuroDidAction = false;
+                if (ClickNextRandomTrack()) 
+                {
+                    state.bNeuroDidAction = false;
+                }
                 state.CurrentState = STAGE_Race_Game_Joining;
                 Sleep(1000);
             }
@@ -132,62 +144,134 @@ namespace Mode_Race
 
     void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick)
     {
-        // 1. High-frequency Context Updates
-        if (searchTick % 80 == 0)
+        
+        if ((state.CurrentState == STAGE_Race_Game_Waiting) && !lobbyFull)
         {
-            if ((state.CurrentState == STAGE_Race_Game_Waiting) && !lobbyFull)
+            if ((joinedPlayers + 1) <= GetRaceTotalPlayerCount())
             {
-                if ((joinedPlayers + 1) <= GetRaceTotalPlayerCount())
-                {
-                    char buffer[128];
-                    snprintf(buffer, sizeof(buffer), "Chat is joining... %d have joined out of %d.", GetRaceTotalPlayerCount(), maxLobbySize);
-                    client.sendContext(std::string(buffer), false);
-                    joinedPlayers = GetRaceTotalPlayerCount();
-                }
-                else if (joinedPlayers == maxLobbySize && maxLobbySize > 0)
-                {
-                    client.sendContext("The lobby is full! Please start the map!", false);
-                    lobbyFull = true;
-                }
+                char buffer[128];
+                snprintf(buffer, sizeof(buffer), "Chat is joining... %d have joined out of %d.", GetRaceTotalPlayerCount(), maxLobbySize);
+                client.sendContext(std::string(buffer), false);
+                joinedPlayers = GetRaceTotalPlayerCount();
+            }
+            else if (joinedPlayers == maxLobbySize && maxLobbySize > 0)
+            {
+                client.sendContext("The lobby is full! Please start the map!", false);
+                lobbyFull = true;
             }
         }
+        
+        if (state.CurrentState != lastState)
+        {
+            RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
+            RegisterAnAction(EActionRegistry::Register, lastState, state.CurrentState, client);
 
-        // 2. Standard State Handling
+            switch (state.CurrentState)
+            {
+            case STAGE_Race_Map_Select:
+                client.sendContext("We need to pick a track to race on. Let's make it random! Or, if you changed your mind, you can go back to mode selection.", true);
+                break;
+            case STAGE_Race_Lobby_Start:
+                client.sendContext("The track has been selected. Start the lobby so chat can join, or go back if you want a different map!", true);
+                break;
+            case STAGE_Race_Game_Joining:
+                client.sendContext("The lobby is open. Chat can join by typing !play in chat! Don't forget to join the game yourself!", true);
+                break;
+            case STAGE_Race_Game_At_Results:
+                client.sendContext("The race results are on screen. Would you like to return to menu or play another random map?", true);
+                break;
+            }
+
+            lastState = state.CurrentState;
+        }
+
+
         switch (state.CurrentState)
         {
-        case STAGE_Race_Map_Select:
-            client.forceDisposableActions(
-                "We need to pick a track to race on.",
-                "Let's make it random! Click the randomize map button.",
-                false, { actRaceRandomMap }
-            );
-            break;
-
-        case STAGE_Race_Lobby_Start:
-            client.forceDisposableActions(
-                "The track has been selected.",
-                "Start the lobby so chat can join!",
-                false, { actRaceStartLobby }
-            );
-            break;
-
-        case STAGE_Race_Game_Joining:
-            client.forceDisposableActions(
-                "The lobby is open. Chat can join by typeing !play in chat!",
-                "Don't forget to join the game yourself!",
-                false, { actRaceJoinGame }
-            );
-            break;
-
-        case STAGE_Race_Game_Waiting:
-            Sleep(100);
-            break;
-
         case STAGE_Race_Game_Started:
             if (!bIsWaitingForResults && ((GetRaceFinishedPlayerCount() + GetRaceDeadPlayerCount()) == GetRaceTotalPlayerCount()))
             {
                 state.CurrentState = STAGE_Race_Game_Finished;
-                client.sendUnregisterActions({ "race_focus_first_place", "race_focus_second_place", "race_focus_third_place", "rotate_cam" });
+                break;
+            }
+
+            if (searchTick % 10 == 0)
+            {
+                int currentDead = GetRaceDeadPlayerCount();
+
+                // MASS CARNAGE
+                // If 5 or more marbles die within 1 second
+                if (currentDead - lastDeadCount >= 5 && (searchTick - lastAnnouncementTick) > 100)
+                {
+                    char buffer[256];
+                    snprintf(buffer, sizeof(buffer),
+                        "Absolute disaster on the track! %d marbles were just eliminated all at once! Act like a shocked sports commentator and react to the massive carnage!",
+                        (currentDead - lastDeadCount));
+
+                    client.sendContext(std::string(buffer), true);
+
+                    lastAnnouncementTick = searchTick;
+                    lastDeadCount = currentDead;
+                    break;
+                }
+                lastDeadCount = currentDead;
+
+                // LEAD CHANGES & BATTLES
+                std::vector<RaceResult> topPlayers = ExtractLiveScoreboard(3);
+
+                if (!topPlayers.empty() && topPlayers[0].bIsValid)
+                {
+                    std::wstring polledLeader = topPlayers[0].PlayerName;
+
+                    // The Debounce: Did they hold the lead?
+                    if (polledLeader == currentObservedLeader)
+                    {
+                        consecutiveLeaderSeconds++;
+                    }
+                    else
+                    {
+                        previousLeader = currentObservedLeader;
+                        currentObservedLeader = polledLeader;
+                        consecutiveLeaderSeconds = 1;
+                    }
+
+                    // The Announcement Trigger (Held for 3s + Not recently announced + 15s global cooldown)
+                    if (consecutiveLeaderSeconds >= 3 &&
+                        currentObservedLeader != lastAnnouncedLeader &&
+                        (searchTick - lastAnnouncementTick) > 150)
+                    {
+                        char buffer[512];
+
+                        // An overtake
+                        if (!previousLeader.empty() && previousLeader != currentObservedLeader)
+                        {
+                            snprintf(buffer, sizeof(buffer),
+                                "Incredible move! %S just overtook %S for 1st place! You are the sports commentator, hype up this lead change for the stream!",
+                                currentObservedLeader.c_str(), previousLeader.c_str());
+                        }
+                        // A close battle between 1st and 2nd
+                        else if (topPlayers.size() >= 2 && topPlayers[1].bIsValid)
+                        {
+                            snprintf(buffer, sizeof(buffer),
+                                "%S has broken away from the pack and is leading the race, but %S is chasing right behind them in 2nd! Give us some play-by-play commentary on this battle!",
+                                currentObservedLeader.c_str(), topPlayers[1].PlayerName.c_str());
+                        }
+                        // Dominating lead
+                        else
+                        {
+                            snprintf(buffer, sizeof(buffer),
+                                "%S has taken a dominating lead! Give us some energetic sports commentary about the current race leader!",
+                                currentObservedLeader.c_str());
+                        }
+
+                        // Send the prompt!
+                        client.sendContext(std::string(buffer), true);
+                        printf("[Neuro Context] %s\n", buffer);
+
+                        lastAnnouncedLeader = currentObservedLeader;
+                        lastAnnouncementTick = searchTick;
+                    }
+                }
             }
             else if (searchTick % 100 == 0)
             {
@@ -202,14 +286,13 @@ namespace Mode_Race
 
         case STAGE_Race_Game_Finished:
             Sleep(3000);
-            //PressInGameButton("ContinueButton"); // not working
+            //PressInGameButton("ContinueButton"); // doesn't work
 
             ForceProceedToResults();
             printf("[Neuro] Race finished, continue button pressed.\n");
 
             Sleep(1000);
             ProcessRaceResults(maxLobbySize);
-            client.sendRegisterActions({ actResultNextRandomMap });
             state.CurrentState = STAGE_Race_Game_At_Results;
             break;
 
@@ -217,6 +300,27 @@ namespace Mode_Race
             Sleep(100);
             break;
         }
+
+
+        if (searchTick % 150 == 0)
+        {
+            switch (state.CurrentState)
+            {
+            case STAGE_Race_Map_Select:
+                client.sendContext("We need to pick a track to race on. Use your randomize map action!", false);
+                break;
+            case STAGE_Race_Lobby_Start:
+                client.sendContext("The track has been selected. Please start the lobby so chat can join!", false);
+                break;
+            case STAGE_Race_Game_Joining:
+                client.sendContext("The lobby is open. Don't forget to join the game yourself using your action!", false);
+                break;
+            case STAGE_Race_Game_At_Results:
+                client.sendContext("The race results are on screen. Are we heading to the next map, or going back to the menu?", false);
+                break;
+            }
+        }
+        
     }
 
 

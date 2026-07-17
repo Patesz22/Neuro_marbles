@@ -399,4 +399,116 @@ namespace Mode_Race
         printf("[!] Could not find active MarbleRaceWidgetY2.\n");
         return false;
     }
+
+    bool ClickReturnToRaceMenu()
+    {
+        SDK::UMarbleRaceWidgetY2* RaceWidget = nullptr;
+
+        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+        {
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t dummy; float dummyF;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::UMarbleRaceWidgetY2::StaticClass()))
+            {
+                std::string fullName = Obj->GetFullName();
+                if (fullName.find("Transient") != std::string::npos)
+                {
+                    RaceWidget = static_cast<SDK::UMarbleRaceWidgetY2*>(Obj);
+                    break;
+                }
+            }
+        }
+
+        if (RaceWidget)
+        {
+            printf(">> [STAGE 5] Firing the literal Main Menu UI Event! <<\n");
+            RaceWidget->OnMainMenuButtonClicked();
+            return true;
+        }
+
+        printf("[!] Could not find active MarbleRaceWidgetY2.\n");
+        return false;
+    }
+
+    std::vector<RaceResult> ExtractLiveScoreboard(int maxPlayersToFetch)
+    {
+        std::vector<RaceResult> liveResults;
+        SDK::UTopRacePositionsWidgetY2* TopPositionsHUD = nullptr;
+
+        // 1. Find the Live Race HUD
+        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+        {
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t dummy; float dummyF;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::UTopRacePositionsWidgetY2::StaticClass()))
+            {
+                if (Obj->GetFullName().find("Transient") != std::string::npos)
+                {
+                    TopPositionsHUD = static_cast<SDK::UTopRacePositionsWidgetY2*>(Obj);
+                    break;
+                }
+            }
+        }
+
+        if (!TopPositionsHUD || !TopPositionsHUD->PositionsPanel)
+        {
+            return liveResults;
+        }
+
+        // 2. Extract from the Vertical Box
+        // UVerticalBox inherits from UPanelWidget, which contains the children array.
+        int childCount = TopPositionsHUD->PositionsPanel->GetChildrenCount();
+        int fetchCount = (maxPlayersToFetch < childCount) ? maxPlayersToFetch : childCount;
+
+        for (int i = 0; i < fetchCount; i++)
+        {
+            // Get the raw child widget from the UI slot
+            SDK::UWidget* rawChild = TopPositionsHUD->PositionsPanel->GetChildAt(i);
+            if (!rawChild || !rawChild->IsA(SDK::UTopRacePositionEntryWidgetY2::StaticClass())) continue;
+
+            // Cast it to the Entry Widget you dumped
+            SDK::UTopRacePositionEntryWidgetY2* Entry = static_cast<SDK::UTopRacePositionEntryWidgetY2*>(rawChild);
+
+            RaceResult result;
+            result.Rank = i + 1; // 0th index is 1st place, 1st index is 2nd place, etc.
+            result.bIsValid = true;
+
+            // ==========================================
+            // TEXT EXTRACTION (Native Engine SDK)
+            // ==========================================
+            if (Entry->PlayerNameTextBlock)
+            {
+                // 1. Get the raw FText from the UI element
+                // (UCommonTextBlock inherits GetText() from UTextBlock)
+                SDK::FText rawFText = Entry->PlayerNameTextBlock->GetText();
+
+                // 2. Convert FText to FString safely via the Engine's Kismet Library
+                SDK::FString stringName = SDK::UKismetTextLibrary::Conv_TextToString(rawFText);
+
+                // 3. Convert FString to std::wstring using Dumper-7's built-in helper
+                // (This bypasses the private 'Data' and 'Count' compiler errors!)
+                result.PlayerName = stringName.ToWString();
+            }
+
+            if (result.PlayerName.empty())
+            {
+                result.PlayerName = L"Unknown";
+            }
+
+            liveResults.push_back(result);
+        }
+
+        return liveResults;
+    }
+
+
+
 }
+
+
