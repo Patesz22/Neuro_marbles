@@ -93,8 +93,41 @@ namespace Mode_Menu
                     return true;
                 }
             }
-        }
+            // Handle Back Menu Buttons
+            else if (Obj->IsA(SDK::UW_MOSButton_Back_C::StaticClass()))
+            {
+                std::string fullName = Obj->GetFullName();
 
+                if (fullName.find("Transient") != std::string::npos &&
+                    fullName.find(buttonName) != std::string::npos)
+                {
+                    SDK::UW_MOSButton_Back_C* BackBtn = static_cast<SDK::UW_MOSButton_Back_C*>(Obj);
+
+                    if (!BackBtn->IsVisible())
+                    {
+                        printf(">> [DEBUG] Ignored hidden button: %s <<\n", fullName.c_str());
+                        continue;
+                    }
+
+                    printf(">> [DEBUG] Clicking VISIBLE button: %s <<\n", fullName.c_str());
+
+                    if (bBailOutInstantly)
+                    {
+                        BackBtn->HandleButtonClicked();
+                    }
+                    else
+                    {
+                        BackBtn->BP_OnPressed();
+                        BackBtn->HandleButtonPressed();
+                        BackBtn->HandleButtonClicked();
+                        BackBtn->BP_OnReleased();
+                        BackBtn->HandleButtonReleased();
+                    }
+                    return true;
+                }
+            }
+        }
+        
         return false; // If we get here, no visible button was found
     }
 
