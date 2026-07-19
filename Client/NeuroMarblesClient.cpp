@@ -95,6 +95,11 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
         resp = "Returning to the gamemode selection screen!";
         bSuccess = true;
     }
+    else if (actionName == "click_welcome_continue" && state.CurrentState == STAGE_Welcome_Continue)
+    {
+        resp = "Bypassed welcome screen!";
+        bSuccess = true;
+    }
     else if (actionName == "select_race_mode" && state.CurrentState == STAGE_Gamemode_Select)
     {
         resp = "Selected Race mode!";
