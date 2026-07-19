@@ -58,7 +58,7 @@ void RegisterAStage(EActionRegistry operation, ENeuroState targetStage, NeuroMar
         if (operation == EActionRegistry::Register)
             client.sendRegisterActions({ Mode_Race::actResultMainMenu, Mode_Race::actResultNextRandomMap });
         else
-            client.sendUnregisterActions({ "results_exit_to_menu", "results_next_random_map" });
+            client.sendUnregisterActions({ "result_exit_race_menu", "result_next_random_map" });
         break;
     }
 }

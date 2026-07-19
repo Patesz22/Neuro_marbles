@@ -145,12 +145,12 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
         resp = "Rotating the cam so chat can see better.";
         bSuccess = true;
     }
-    else if (actionName == "results_exit_to_menu" && state.CurrentState == STAGE_Race_Game_At_Results)
+    else if (actionName == "result_exit_race_menu" && state.CurrentState == STAGE_Race_Game_At_Results)
     {
         resp = "I have exited to the main menu.";
         bSuccess = true;
     }
-    else if (actionName == "results_next_random_map" && state.CurrentState == STAGE_Race_Game_At_Results)
+    else if (actionName == "result_next_random_map" && state.CurrentState == STAGE_Race_Game_At_Results)
     {
         resp = "Starting the next race...";
         bSuccess = true;
