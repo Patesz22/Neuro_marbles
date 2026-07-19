@@ -21,14 +21,14 @@ void RegisterAStage(EActionRegistry operation, ENeuroState targetStage, NeuroMar
 
     case STAGE_Race_Map_Select:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Race::actRaceRandomMap, Mode_Menu::actMenuGoBack });
+            client.sendRegisterActions({ Mode_Race::actRaceRandomMap, Mode_Race::actMenuGoBack });
         else
             client.sendUnregisterActions({ "randomize_race_map", "menu_go_back" });
         break;
 
     case STAGE_Race_Lobby_Start:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Race::actRaceStartLobby, Mode_Menu::actMenuGoBack });
+            client.sendRegisterActions({ Mode_Race::actRaceStartLobby, Mode_Race::actMenuGoBack });
         else
             client.sendUnregisterActions({ "race_start_lobby", "menu_go_back" });
         break;

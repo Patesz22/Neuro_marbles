@@ -7,7 +7,6 @@ namespace Mode_Menu
 {
     extern NeuroWebsocketpp::Action actContinue;
     extern NeuroWebsocketpp::Action actSelectRace;
-    extern NeuroWebsocketpp::Action actMenuGoBack;
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
     void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
@@ -18,6 +17,8 @@ namespace Mode_Menu
 // Race Routing
 namespace Mode_Race 
 {
+    extern NeuroWebsocketpp::Action actMenuGoBack;
+
     extern NeuroWebsocketpp::Action actRaceRandomMap;
     extern NeuroWebsocketpp::Action actRaceStartLobby;
     extern NeuroWebsocketpp::Action actRaceJoinGame;

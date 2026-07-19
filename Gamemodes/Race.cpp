@@ -24,6 +24,8 @@ namespace Mode_Race
 
     // Race-Specific Neuro Actions
     nlohmann::json empty_schema;
+    NeuroWebsocketpp::Action actMenuGoBack("menu_go_back", "Go back to the gamemode selection menu screen.", empty_schema);
+
     NeuroWebsocketpp::Action actRaceRandomMap("randomize_race_map", "Pick a random track to race on!", empty_schema);
     NeuroWebsocketpp::Action actRaceStartLobby("race_start_lobby", "Start the lobby so players can join!", empty_schema);
     NeuroWebsocketpp::Action actRaceJoinGame("race_join_game", "Spawn your own marble into the race!", empty_schema);
@@ -37,6 +39,20 @@ namespace Mode_Race
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state)
     {
+        if (state.LastNeuroAction.compare("menu_go_back") == 0)
+        {
+            if (Mode_Menu::ClickGenericButton("BackButton"))
+            {
+                printf("[Neuro] STAGE 1: Back button pressed.\n");
+                lastState = state.CurrentState;
+                state.CurrentState = STAGE_Gamemode_Select;
+                RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
+                RegisterAnAction(EActionRegistry::Register, lastState, state.CurrentState, client);
+                Sleep(1500);
+            }
+            state.bNeuroDidAction = false;
+        }
+
         switch (state.CurrentState)
         {
         case STAGE_Race_Map_Select:

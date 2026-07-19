@@ -11,27 +11,11 @@ namespace Mode_Menu
     nlohmann::json empty_schema;
     NeuroWebsocketpp::Action actContinue("click_welcome_continue", "Click to bypass the promo screen!", empty_schema);
     NeuroWebsocketpp::Action actSelectRace("select_race_mode", "Select the standard Race Game Mode!", empty_schema);
-    NeuroWebsocketpp::Action actMenuGoBack("menu_go_back", "Go back to the gamemode selection menu screen.", empty_schema);
 
     // NeuroWebsocketpp::Action actSelectRoyale("select_royale_mode", "Select the Royale Game Mode!", empty_schema);
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state)
     {
-
-        if (state.LastNeuroAction.compare("menu_go_back") == 0)
-        {
-            if (ClickGenericButton("BackButton"))
-            {
-                printf("[Neuro] STAGE 1: Bypassed Promo Screen.\n");
-                lastState = state.CurrentState;
-                state.CurrentState = STAGE_Gamemode_Select;
-                RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
-                RegisterAnAction(EActionRegistry::Register, lastState, state.CurrentState, client);
-                Sleep(1500);
-            }
-            state.bNeuroDidAction = false;
-        }
-
         switch (state.CurrentState)
         {
         case STAGE_Welcome_Continue:
