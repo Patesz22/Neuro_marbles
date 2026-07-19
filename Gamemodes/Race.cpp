@@ -281,7 +281,7 @@ namespace Mode_Race
                         }
 
                         // Send the prompt!
-                        client.sendContext(std::string(buffer), true);
+                        client.sendContext(std::string(buffer), false);
                         printf("[Neuro Context] %s\n", buffer);
 
                         lastAnnouncedLeader = currentObservedLeader;
