@@ -32,10 +32,13 @@ namespace Mode_Race
     void ForceProceedToResults();
     std::vector<RaceResult> ExtractLiveScoreboard(int maxPlayersToFetch);
     std::vector<RaceResult> ExtractResultsFromListView(int maxPlayersToFetch);
-    void ProcessRaceResults(const int playersWanted);
+    std::string ProcessRaceResults(const int playersWanted);
+    std::string GetFirstPlaceFinishedPlayer();
 
     void TurnCamera();
     bool ClickNextRandomTrack();
     bool ClickReturnToRaceMenu();
+
+    bool AutoScrollRaceResults(int searchTick);
 
 }
