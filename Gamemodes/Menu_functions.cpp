@@ -202,84 +202,55 @@ namespace Mode_Menu
 
     bool ClickRandomizeButton()
     {
-        SDK::UObject* ParentMapList = nullptr;
-        SDK::UObject* RandomButton = nullptr;
+        SDK::UW_MOSButton_Default_C* ActiveRandomButton = nullptr;
 
-        // 1. Find BOTH the MapList Container and the physical Random Button
-        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+        // 1. Find the LIVE (Visible) Random Button
+        int initialObjectCount = SDK::UObject::GObjects->Num();
+        for (int i = initialObjectCount - 1; i >= 0; --i)
         {
-            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            if (!Obj || Obj->IsDefaultObject()) continue;
+            if (i >= SDK::UObject::GObjects->Num()) break;
 
-            if (Obj->IsA(SDK::UUserWidget::StaticClass()))
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::UW_MOSButton_Default_C::StaticClass()))
             {
                 std::string fullName = Obj->GetFullName();
 
-                if (!ParentMapList &&
-                    fullName.find("W_RaceExperienceMapList_C") != std::string::npos &&
-                    fullName.find("Transient") != std::string::npos)
+                // Check if it's the Random Button
+                if (fullName.find("Transient") != std::string::npos &&
+                    fullName.find("RandomButton") != std::string::npos)
                 {
-                    ParentMapList = Obj;
-                }
+                    SDK::UW_MOSButton_Default_C* Btn = static_cast<SDK::UW_MOSButton_Default_C*>(Obj);
 
-                if (!RandomButton &&
-                    fullName.find("RandomButton") != std::string::npos &&
-                    fullName.find("Transient") != std::string::npos)
-                {
-                    RandomButton = Obj;
+                    // ==========================================
+                    // THE FIX: Ignore hidden/dead menus!
+                    // ==========================================
+                    if (Btn->IsVisible())
+                    {
+                        ActiveRandomButton = Btn;
+                        break; // Found the real, on-screen button!
+                    }
                 }
-
-                if (ParentMapList && RandomButton) break;
             }
         }
 
-        if (!ParentMapList || !RandomButton) return false;
-
-        // 2. Fetch the exact Developer Function from global memory
-        SDK::UFunction* TargetFunc = nullptr;
-        for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+        if (!ActiveRandomButton)
         {
-            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            if (Obj && Obj->IsA(SDK::UFunction::StaticClass()))
-            {
-                if (Obj->GetName().find("BndEvt__W_RaceUserFacingExperience_RandomButton_K2Node_ComponentBoundEvent_3_CommonButtonBaseClicked__DelegateSignature") != std::string::npos)
-                {
-                    TargetFunc = static_cast<SDK::UFunction*>(Obj);
-                    break;
-                }
-            }
+            printf(">> [ERROR] Could not find VISIBLE Random Button! <<\n");
+            return false;
         }
 
-        // 3. The "Russian Roulette" Execution
-        if (TargetFunc)
-        {
-            struct FCommonButtonBaseClicked_Params
-            {
-                SDK::UObject* Button;
-            };
+        ActiveRandomButton->BP_OnPressed();
+        ActiveRandomButton->HandleButtonPressed();
+        ActiveRandomButton->HandleButtonClicked();
+        ActiveRandomButton->BP_OnReleased();
+        ActiveRandomButton->HandleButtonReleased();
 
-            FCommonButtonBaseClicked_Params Params;
-            Params.Button = RandomButton;
-
-            // Seed C++ with your PC's real-time clock
-            srand((unsigned int)time(NULL));
-
-            // Pick a random number of clicks between 15 and 65
-            int randomClicks = (rand() % 50) + 15;
-
-            printf(">> [STAGE 3] Defeating Static Seed! Firing Random Button %d times... <<\n", randomClicks);
-
-            // Rapid-fire the native function to scramble the game's internal RNG state
-            for (int i = 0; i < randomClicks; i++)
-            {
-                ParentMapList->ProcessEvent(TargetFunc, &Params);
-            }
-
-            printf(">> [STAGE 3] Map successfully randomized! <<\n");
-            return true;
-        }
-
-        return false;
+        printf(">> [STAGE 3] Map successfully randomized! <<\n");
+        return true;
     }
 
 
