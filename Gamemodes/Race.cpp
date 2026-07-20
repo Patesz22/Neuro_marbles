@@ -13,8 +13,8 @@ namespace Mode_Race
     static bool lobbyFull = false;
     static int maxLobbySize = -1;
     static bool bIsWaitingForResults = false;
+    static bool sentFinished1st = false;
 
-    // Commentary
     static std::wstring currentObservedLeader = L"";
     static std::wstring previousLeader = L"";
     static int consecutiveLeaderSeconds = 0;
@@ -85,6 +85,7 @@ namespace Mode_Race
                 // Reset lobby variables for the new race
                 joinedPlayers = 0;
                 lobbyFull = false;
+                sentFinished1st = false;
             }
             break;
 
@@ -143,7 +144,7 @@ namespace Mode_Race
                     state.CurrentState = STAGE_Race_Map_Select;
                 }
                 state.bNeuroDidAction = false;
-                Sleep(1000);
+                Sleep(1500);
             }
             else if (state.LastNeuroAction.compare("result_next_random_map") == 0)
             {
@@ -152,7 +153,7 @@ namespace Mode_Race
                     state.bNeuroDidAction = false;
                 }
                 state.CurrentState = STAGE_Race_Game_Joining;
-                Sleep(1000);
+                Sleep(5000);
             }
             break;
         }
@@ -204,121 +205,153 @@ namespace Mode_Race
 
         switch (state.CurrentState)
         {
-        case STAGE_Race_Game_Started:
-            if (!bIsWaitingForResults && ((GetRaceFinishedPlayerCount() + GetRaceDeadPlayerCount()) == GetRaceTotalPlayerCount()))
+            case STAGE_Race_Game_Started: 
             {
-                state.CurrentState = STAGE_Race_Game_Finished;
+                if (!bIsWaitingForResults && ((GetRaceFinishedPlayerCount() + GetRaceDeadPlayerCount()) == GetRaceTotalPlayerCount()))
+                {
+                    state.CurrentState = STAGE_Race_Game_Finished;
+                    break;
+                }
+
+                if (!sentFinished1st) 
+                {
+                    std::string firstplace = GetFirstPlaceFinishedPlayer();
+                    if (firstplace.compare("") != 0) 
+                    {
+                        std::string tmp = "We have a first place finisher: ";
+                        tmp.append(firstplace);
+                        client.sendContext(tmp, false);
+                        sentFinished1st = true;
+                    }
+                }
+
+                if (searchTick % 100 == 0)
+                {
+                    int currentDead = GetRaceDeadPlayerCount();
+
+                    // MASS CARNAGE
+                    // If 5 or more marbles die within 2 second
+                    if (currentDead - lastDeadCount >= 5 && (searchTick - lastAnnouncementTick) > 200)
+                    {
+                        char buffer[256];
+                        snprintf(buffer, sizeof(buffer),
+                            "%d marbles were just eliminated all at once!",
+                            (currentDead - lastDeadCount));
+
+                        client.sendContext(std::string(buffer), true);
+
+                        lastAnnouncementTick = searchTick;
+                        lastDeadCount = currentDead;
+                        break;
+                    }
+                    lastDeadCount = currentDead;
+
+                    // LEAD CHANGES & BATTLES
+                    std::vector<RaceResult> topPlayers = ExtractLiveScoreboard(10);
+
+                    if (!topPlayers.empty() && topPlayers[0].bIsValid)
+                    {
+                        std::wstring polledLeader = topPlayers[0].PlayerName;
+
+                        // The Debounce: Did they hold the lead?
+                        if (polledLeader == currentObservedLeader)
+                        {
+                            consecutiveLeaderSeconds++;
+                        }
+                        else
+                        {
+                            previousLeader = currentObservedLeader;
+                            currentObservedLeader = polledLeader;
+                            consecutiveLeaderSeconds = 1;
+                        }
+
+                        // The Announcement Trigger (Held for 3s + Not recently announced + 5s global cooldown)
+                        if (consecutiveLeaderSeconds >= 3 &&
+                            currentObservedLeader != lastAnnouncedLeader &&
+                            (searchTick - lastAnnouncementTick) > 50)
+                        {
+                            char buffer[512];
+
+                            // An overtake
+                            if (!previousLeader.empty() && previousLeader != currentObservedLeader)
+                            {
+                                snprintf(buffer, sizeof(buffer),
+                                    "%S just overtook %S for 1st place!",
+                                    currentObservedLeader.c_str(), previousLeader.c_str());
+                            }
+                            // A close battle between 1st and 2nd
+                            else if (topPlayers.size() >= 2 && topPlayers[1].bIsValid)
+                            {
+                                snprintf(buffer, sizeof(buffer),
+                                    "%S has broken away from the pack and is leading the race, but %S is chasing right behind them in 2nd!",
+                                    currentObservedLeader.c_str(), topPlayers[1].PlayerName.c_str());
+                            }
+                            // Dominating lead
+                            else
+                            {
+                                snprintf(buffer, sizeof(buffer),
+                                    "%S has taken a dominating lead!",
+                                    currentObservedLeader.c_str());
+                            }
+
+                            // Send the prompt!
+                            client.sendContext(std::string(buffer), false);
+                            printf("[Neuro Context] %s\n", buffer);
+
+                            lastAnnouncedLeader = currentObservedLeader;
+                            lastAnnouncementTick = searchTick;
+                        }
+                    }
+                }
+                else if (searchTick % 500 == 0)
+                {
+                    char buffer[512];
+                    snprintf(buffer, sizeof(buffer),
+                        "There are %d players alive, %d dead players and %d players have already finished.",
+                        GetRaceTotalPlayerCount() - GetRaceDeadPlayerCount() - GetRaceFinishedPlayerCount(), GetRaceDeadPlayerCount(), GetRaceFinishedPlayerCount());
+                    client.sendContext(std::string(buffer), (searchTick % 100 != 0)); // Send true/false alternately
+                }
+                //Sleep(100);
+                break;
+            }
+            
+
+            case STAGE_Race_Game_Finished:
+            {
+                Sleep(3000);
+                //PressInGameButton("ContinueButton"); // doesn't work
+
+                ForceProceedToResults();
+                printf("[Neuro] Race finished, continue button pressed.\n");
+
+                Sleep(1000);
+                std::string top10 = ProcessRaceResults(10);
+                printf("asdasd\n");
+
+                std::string msg;
+                msg.append("The race has finished. Out of the ");
+                msg.append(std::to_string(GetRaceTotalPlayerCount()));
+                msg.append(" players, only ");
+                msg.append(std::to_string(GetRaceFinishedPlayerCount()));
+                msg.append(" players have finished, ");
+                msg.append(std::to_string(GetRaceDeadPlayerCount()));
+                msg.append(" have died. The top 10 finishers are:\n");
+                msg.append(top10);
+                client.sendContext(msg, false);
+
+                state.CurrentState = STAGE_Race_Game_At_Results;
+                break;
+            }
+            
+
+            case STAGE_Race_Game_At_Results:
+
+                AutoScrollRaceResults(searchTick);
                 break;
             }
 
-            if (searchTick % 10 == 0)
-            {
-                int currentDead = GetRaceDeadPlayerCount();
 
-                // MASS CARNAGE
-                // If 5 or more marbles die within 1 second
-                if (currentDead - lastDeadCount >= 5 && (searchTick - lastAnnouncementTick) > 100)
-                {
-                    char buffer[256];
-                    snprintf(buffer, sizeof(buffer),
-                        "Absolute disaster on the track! %d marbles were just eliminated all at once! Act like a shocked sports commentator and react to the massive carnage!",
-                        (currentDead - lastDeadCount));
-
-                    client.sendContext(std::string(buffer), true);
-
-                    lastAnnouncementTick = searchTick;
-                    lastDeadCount = currentDead;
-                    break;
-                }
-                lastDeadCount = currentDead;
-
-                // LEAD CHANGES & BATTLES
-                std::vector<RaceResult> topPlayers = ExtractLiveScoreboard(3);
-
-                if (!topPlayers.empty() && topPlayers[0].bIsValid)
-                {
-                    std::wstring polledLeader = topPlayers[0].PlayerName;
-
-                    // The Debounce: Did they hold the lead?
-                    if (polledLeader == currentObservedLeader)
-                    {
-                        consecutiveLeaderSeconds++;
-                    }
-                    else
-                    {
-                        previousLeader = currentObservedLeader;
-                        currentObservedLeader = polledLeader;
-                        consecutiveLeaderSeconds = 1;
-                    }
-
-                    // The Announcement Trigger (Held for 3s + Not recently announced + 15s global cooldown)
-                    if (consecutiveLeaderSeconds >= 3 &&
-                        currentObservedLeader != lastAnnouncedLeader &&
-                        (searchTick - lastAnnouncementTick) > 150)
-                    {
-                        char buffer[512];
-
-                        // An overtake
-                        if (!previousLeader.empty() && previousLeader != currentObservedLeader)
-                        {
-                            snprintf(buffer, sizeof(buffer),
-                                "Incredible move! %S just overtook %S for 1st place! You are the sports commentator, hype up this lead change for the stream!",
-                                currentObservedLeader.c_str(), previousLeader.c_str());
-                        }
-                        // A close battle between 1st and 2nd
-                        else if (topPlayers.size() >= 2 && topPlayers[1].bIsValid)
-                        {
-                            snprintf(buffer, sizeof(buffer),
-                                "%S has broken away from the pack and is leading the race, but %S is chasing right behind them in 2nd! Give us some play-by-play commentary on this battle!",
-                                currentObservedLeader.c_str(), topPlayers[1].PlayerName.c_str());
-                        }
-                        // Dominating lead
-                        else
-                        {
-                            snprintf(buffer, sizeof(buffer),
-                                "%S has taken a dominating lead! Give us some energetic sports commentary about the current race leader!",
-                                currentObservedLeader.c_str());
-                        }
-
-                        // Send the prompt!
-                        client.sendContext(std::string(buffer), false);
-                        printf("[Neuro Context] %s\n", buffer);
-
-                        lastAnnouncedLeader = currentObservedLeader;
-                        lastAnnouncementTick = searchTick;
-                    }
-                }
-            }
-            else if (searchTick % 100 == 0)
-            {
-                char buffer[256];
-                snprintf(buffer, sizeof(buffer),
-                    "There are %d players alive, %d dead players and %d players have already finished.",
-                    GetRaceTotalPlayerCount() - GetRaceDeadPlayerCount() - GetRaceFinishedPlayerCount(), GetRaceDeadPlayerCount(), GetRaceFinishedPlayerCount());
-                client.sendContext(std::string(buffer), (searchTick % 200 != 0)); // Send true/false alternately
-            }
-            Sleep(100);
-            break;
-
-        case STAGE_Race_Game_Finished:
-            Sleep(3000);
-            //PressInGameButton("ContinueButton"); // doesn't work
-
-            ForceProceedToResults();
-            printf("[Neuro] Race finished, continue button pressed.\n");
-
-            Sleep(1000);
-            ProcessRaceResults(maxLobbySize);
-            state.CurrentState = STAGE_Race_Game_At_Results;
-            break;
-
-        case STAGE_Race_Game_At_Results:
-            Sleep(100);
-            break;
-        }
-
-
-        if (searchTick % 150 == 0)
+        if (searchTick % 3000 == 0)
         {
             switch (state.CurrentState)
             {
@@ -332,7 +365,6 @@ namespace Mode_Race
                 client.sendContext("The lobby is open. Don't forget to join the game yourself using your action!", false);
                 break;
             case STAGE_Race_Game_At_Results:
-                client.sendContext("The race results are on screen. Are we heading to the next map, or going back to the menu?", false);
                 break;
             }
         }
