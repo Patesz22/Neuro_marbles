@@ -42,7 +42,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 
     bool bWasNumpad1Pressed = false;
     bool bWasLeftClicked = false;
-    static int searchTick = 0;
+    static long int searchTick = 0;
 
     while (true)
     {
@@ -84,7 +84,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
             }
             else
             {
-                if (searchTick % 80 == 0) 
+                if (searchTick % 2500 == 0) 
                 {
                     printf("[Neuro DEBUG] Waiting for Neuro at state: %d\n", gameState.CurrentState);
                 }
@@ -102,7 +102,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
         }
 
         searchTick++;
-        Sleep(100);
+        Sleep(10);
     }
 
     printf("Ejecting...\n");

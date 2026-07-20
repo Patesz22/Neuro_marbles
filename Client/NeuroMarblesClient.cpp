@@ -122,7 +122,7 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
     }
     else if (actionName == "race_start_game" && state.CurrentState == STAGE_Race_Game_Waiting)
     {
-        resp = "I have started the race! Let's roll!";
+        resp = "I have started the race! Let's roll! Don't forget to rotate the camera next, so chat can see the race better.";
         bSuccess = true;
     }
     else if (actionName == "race_focus_first_place" && state.CurrentState == STAGE_Race_Game_Started)

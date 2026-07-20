@@ -77,7 +77,7 @@ namespace Mode_Menu
             lastState = state.CurrentState;
         }
 
-        if (searchTick % 150 == 0)
+        if (searchTick % 1500 == 0)
         {
             switch (state.CurrentState)
             {
