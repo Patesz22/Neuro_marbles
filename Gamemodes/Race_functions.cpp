@@ -311,10 +311,12 @@ namespace Mode_Race
         return resultsArray;
     }
 
-    void ProcessRaceResults(const int playersWanted)
+    std::string ProcessRaceResults(const int playersWanted)
     {
+        // add logging
         std::vector<RaceResult> topPlayers = ExtractResultsFromListView(playersWanted);
-        printf("\n========== MARBLES ON STREAM: RACE RESULTS ==========\n");
+        std::string finalResults = "";
+        printf("\n========== RACE RESULTS ==========\n");
 
         int validCount = 0;
         for (int i = 0; i < playersWanted; i++)
@@ -322,18 +324,39 @@ namespace Mode_Race
             if (topPlayers[i].bIsValid)
             {
                 validCount++;
-                printf("#%d - %S (Score: %d | Time: %.2fs)\n",
-                    topPlayers[i].Rank,
-                    topPlayers[i].PlayerName.c_str(),
-                    topPlayers[i].Score,
-                    topPlayers[i].RaceTime);
+                std::string playerNameStr;
+                for (wchar_t c : topPlayers[i].PlayerName) {
+                    playerNameStr += static_cast<char>(c);
+                }
+
+                finalResults.append("#");
+                finalResults.append(std::to_string(topPlayers[i].Rank));
+                finalResults.append(": ");
+                finalResults.append(playerNameStr);
+
+                // Add Race Time nicely formatted
+                if (topPlayers[i].RaceTime > 0.0f)
+                {
+                    char timeBuf[64];
+                    // Format float to 2 decimal places (e.g., 65.43s)
+                    snprintf(timeBuf, sizeof(timeBuf), " - Time: %.2fs", topPlayers[i].RaceTime);
+                    finalResults.append(timeBuf);
+                }
+                else
+                {
+                    finalResults.append(" - DNF"); // Did Not Finish
+                }
+
+                finalResults.append(" | ");
             }
         }
 
-        if (validCount == 0) {
-            printf("[!] No results found. Is the race finished?\n");
+        if (validCount == 0)
+        {
+            return "[!] No results found. Is the race finished?";
         }
-        printf("=====================================================\n\n");
+
+        return finalResults;
     }
 
     void TurnCamera()
@@ -479,9 +502,6 @@ namespace Mode_Race
             result.Rank = i + 1; // 0th index is 1st place, 1st index is 2nd place, etc.
             result.bIsValid = true;
 
-            // ==========================================
-            // TEXT EXTRACTION (Native Engine SDK)
-            // ==========================================
             if (Entry->PlayerNameTextBlock)
             {
                 // 1. Get the raw FText from the UI element
@@ -491,8 +511,6 @@ namespace Mode_Race
                 // 2. Convert FText to FString safely via the Engine's Kismet Library
                 SDK::FString stringName = SDK::UKismetTextLibrary::Conv_TextToString(rawFText);
 
-                // 3. Convert FString to std::wstring using Dumper-7's built-in helper
-                // (This bypasses the private 'Data' and 'Count' compiler errors!)
                 result.PlayerName = stringName.ToWString();
             }
 
@@ -507,8 +525,135 @@ namespace Mode_Race
         return liveResults;
     }
 
+    bool AutoScrollRaceResults(int searchTick)
+    {
+        SDK::URaceResultsWidgetY2* resultsWidget = nullptr;
+
+        // 1. Find the Live Results HUD
+        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+        {
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::URaceResultsWidgetY2::StaticClass()))
+            {
+                if (Obj->GetFullName().find("Transient") != std::string::npos)
+                {
+                    resultsWidget = static_cast<SDK::URaceResultsWidgetY2*>(Obj);
+                    break;
+                }
+            }
+        }
+
+        if (!resultsWidget || !resultsWidget->RaceResultsListView)
+            return false;
+
+        if (searchTick % 20 == 0)
+        {
+            static int currentItemIndex = 0;
+            int totalItems = resultsWidget->RaceResultsListView->ListItems.Num();
+
+            if (totalItems > 0)
+            {
+                // Bring the next item into view
+                resultsWidget->RaceResultsListView->ScrollIndexIntoView(currentItemIndex);
+
+                currentItemIndex++;
+
+                // Optional: Loop back to the top when it reaches the bottom
+                if (currentItemIndex >= totalItems)
+                {
+                    currentItemIndex = 0;
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
 
 
+    std::string GetFirstPlaceFinishedPlayer()
+    {
+        SDK::UTopRacePositionsWidgetY2* TopPositionsHUD = nullptr;
+
+        // 1. Find the Live Race HUD (Your robust anchored method)
+        int initialObjectCount = SDK::UObject::GObjects->Num();
+        for (int i = initialObjectCount - 1; i >= 0; --i)
+        {
+            if (i >= SDK::UObject::GObjects->Num()) break;
+
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t dummy; float dummyF;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::UTopRacePositionsWidgetY2::StaticClass()))
+            {
+                if (Obj->GetFullName().find("Transient") != std::string::npos)
+                {
+                    TopPositionsHUD = static_cast<SDK::UTopRacePositionsWidgetY2*>(Obj);
+                    break;
+                }
+            }
+        }
+
+        if (!TopPositionsHUD || !TopPositionsHUD->PositionsPanel)
+        {
+            return "";
+        }
+
+        // ONLY care about the 1st place player (Index 0 in the panel)
+        if (TopPositionsHUD->PositionsPanel->GetChildrenCount() > 0)
+        {
+            // Get the top widget directly from the UI slot
+            SDK::UWidget* rawChild = TopPositionsHUD->PositionsPanel->GetChildAt(0);
+
+            if (rawChild && rawChild->IsA(SDK::UTopRacePositionEntryWidgetY2::StaticClass()))
+            {
+                SDK::UTopRacePositionEntryWidgetY2* Entry = static_cast<SDK::UTopRacePositionEntryWidgetY2*>(rawChild);
+
+                if (Entry->PlayerNameTextBlock)
+                {
+                    // COLOR CHECK (Green = Finished)
+                    SDK::FLinearColor textColor = Entry->PlayerNameTextBlock->ColorAndOpacity.SpecifiedColor;
+
+                    // If Green channel is dominant, they have finished!
+                    if (Entry->PlayerNameTextBlock)
+                    {
+                        // HEX COLOR CHECK (#00d182)
+                        SDK::FLinearColor textColor = Entry->PlayerNameTextBlock->ColorAndOpacity.SpecifiedColor;
+
+                        // Target: R = 0.0, G = 0.82 (209/255), B = 0.51 (130/255)
+                        // We use a 0.15f tolerance to survive Unreal's Linear/sRGB conversions
+                        bool bIsRedMatch = textColor.R < 0.15f;
+                        bool bIsGreenMatch = std::abs(textColor.G - 0.82f) < 0.15f;
+                        bool bIsBlueMatch = std::abs(textColor.B - 0.51f) < 0.15f;
+
+                        if (bIsRedMatch && bIsGreenMatch && bIsBlueMatch)
+                        {
+                            SDK::FText rawFText = Entry->PlayerNameTextBlock->GetText();
+                            SDK::FString stringName = SDK::UKismetTextLibrary::Conv_TextToString(rawFText);
+                            std::wstring wName = stringName.ToWString();
+
+                            std::string playerNameStr;
+                            for (wchar_t c : wName) {
+                                playerNameStr += static_cast<char>(c);
+                            }
+
+                            return playerNameStr;
+                        }
+                    }
+                }
+            }
+
+            // Returns empty if 1st place hasn't finished
+            return "";
+        }
+
+    }
 }
 
 
