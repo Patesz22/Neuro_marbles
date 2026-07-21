@@ -136,6 +136,7 @@
     <ClCompile Include="Gamemodes\Menu_functions.cpp" />
     <ClCompile Include="Gamemodes\Race_functions.cpp" />
     <ClCompile Include="Gamemodes\Royale.cpp" />
+    <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Gamemodes\Menu.cpp" />
     <ClCompile Include="misc.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Gamemodes\Race.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="json\json.hpp" />
+    <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="NeuroGameSDK\NeuroGameSdkWebsocketpp.hpp" />

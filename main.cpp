@@ -31,6 +31,8 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     FILE* fDummy;
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
 
+    Logger::Init();
+
     printf("==========================================\n");
     printf("     MARBLES ON STREAM - NEURO BOT\n");
     printf("==========================================\n");
@@ -106,6 +108,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     }
 
     printf("Ejecting...\n");
+    Logger::Shutdown();
     fclose(fDummy);
     FreeConsole();
     FreeLibraryAndExitThread(static_cast<HMODULE>(lpReserved), 0);

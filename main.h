@@ -15,6 +15,7 @@
 #include "misc.h"
 #include "json/json.hpp"
 #include "GameState.h"
+#include "Logging/Logging.h"
 
 
 

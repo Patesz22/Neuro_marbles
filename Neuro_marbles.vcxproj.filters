@@ -87,6 +87,9 @@
     <ClCompile Include="Actions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Logging\Logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -114,6 +117,9 @@
       <Filter>Header Files\Gamemodes</Filter>
     </ClInclude>
     <ClInclude Include="Gamemodes\Race.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging\Logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

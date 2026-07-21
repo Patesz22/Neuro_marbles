@@ -204,7 +204,6 @@ namespace Mode_Menu
     {
         SDK::UW_MOSButton_Default_C* ActiveRandomButton = nullptr;
 
-        // 1. Find the LIVE (Visible) Random Button
         int initialObjectCount = SDK::UObject::GObjects->Num();
         for (int i = initialObjectCount - 1; i >= 0; --i)
         {
@@ -219,19 +218,15 @@ namespace Mode_Menu
             {
                 std::string fullName = Obj->GetFullName();
 
-                // Check if it's the Random Button
                 if (fullName.find("Transient") != std::string::npos &&
                     fullName.find("RandomButton") != std::string::npos)
                 {
                     SDK::UW_MOSButton_Default_C* Btn = static_cast<SDK::UW_MOSButton_Default_C*>(Obj);
 
-                    // ==========================================
-                    // THE FIX: Ignore hidden/dead menus!
-                    // ==========================================
                     if (Btn->IsVisible())
                     {
                         ActiveRandomButton = Btn;
-                        break; // Found the real, on-screen button!
+                        break;
                     }
                 }
             }
@@ -243,13 +238,29 @@ namespace Mode_Menu
             return false;
         }
 
+        // This scrambles the Blueprint seed
+        srand((unsigned int)time(NULL));
+        int randomChurn = (rand() % 50) + 15;
+
+        SDK::UKismetMathLibrary* MathLib = SDK::UKismetMathLibrary::GetDefaultObj();
+        if (MathLib)
+        {
+            for (int i = 0; i < randomChurn; i++)
+            {
+                // Advance the game's global random seed silently
+                // NOTE: If your Dumper-7 generated this as a static function, 
+                // you may need to change this line to: SDK::UKismetMathLibrary::RandomFloat();
+                MathLib->RandomFloat();
+            }
+        }
+
         ActiveRandomButton->BP_OnPressed();
         ActiveRandomButton->HandleButtonPressed();
         ActiveRandomButton->HandleButtonClicked();
         ActiveRandomButton->BP_OnReleased();
         ActiveRandomButton->HandleButtonReleased();
 
-        printf(">> [STAGE 3] Map successfully randomized! <<\n");
+        printf(">> [STAGE 3] RNG Seed churned %d times. <<\n", randomChurn);
         return true;
     }
 
