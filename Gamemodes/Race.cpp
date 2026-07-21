@@ -74,7 +74,8 @@ namespace Mode_Race
                 printf("[Neuro] STAGE 4: Start initiated! Entering match...\n");
                 state.bNeuroDidAction = false;
 
-                while (!bClickAcknowledged) { Sleep(100); }
+                while (!bClickAcknowledged) 
+                { Sleep(100); }
 
                 printf("Blueprint Injected! Waiting for map to load...\n");
                 Sleep(8000);
@@ -95,6 +96,7 @@ namespace Mode_Race
                 printf("[Neuro] STAGE 5: Neuro joined the game!\n");
                 state.CurrentState = STAGE_Race_Game_Waiting;
                 state.bNeuroDidAction = false;
+                sentFinished1st = false;
             }
             break;
 
@@ -351,7 +353,7 @@ namespace Mode_Race
             }
 
 
-        if (searchTick % 3000 == 0)
+        /*if (searchTick % 3000 == 0)
         {
             switch (state.CurrentState)
             {
@@ -367,7 +369,7 @@ namespace Mode_Race
             case STAGE_Race_Game_At_Results:
                 break;
             }
-        }
+        }*/
         
     }
 

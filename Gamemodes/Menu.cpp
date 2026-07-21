@@ -77,7 +77,7 @@ namespace Mode_Menu
             lastState = state.CurrentState;
         }
 
-        if (searchTick % 1500 == 0)
+        /*if (searchTick % 1500 == 0)
         {
             switch (state.CurrentState)
             {
@@ -88,7 +88,7 @@ namespace Mode_Menu
                 client.sendContext("We need to pick a game mode. Please use your action to select a gamemode!", false);
                 break;
             }
-        }
+        }*/
     }
 
 }
