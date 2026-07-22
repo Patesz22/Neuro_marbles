@@ -3,6 +3,7 @@
 #include "../main.h"
 #include "Menu.h"
 #include "Race.h"
+#include "misc.h"
 
 extern ENeuroState lastState;
 
@@ -11,6 +12,7 @@ namespace Mode_Race
 
     static int joinedPlayers = 0;
     static bool lobbyFull = false;
+    static bool joinableSent = false;
     static int maxLobbySize = -1;
     static bool bIsWaitingForResults = false;
     static bool sentFinished1st = false;
@@ -78,9 +80,6 @@ namespace Mode_Race
                 { Sleep(100); }
 
                 printf("Blueprint Injected! Waiting for map to load...\n");
-                Sleep(8000);
-                printf("Waiting finished! Skipping intros...\n");
-                PressKey(VK_SPACE);
                 state.CurrentState = STAGE_Race_Game_Joining;
 
                 // Reset lobby variables for the new race
@@ -109,6 +108,14 @@ namespace Mode_Race
             break;
 
         case STAGE_Race_Game_Started:
+        {
+            SDK::AMarbleRaceGameMode* GameMode = GetMarbleGameMode();
+            if (GameMode && GameMode->bRaceFinished)
+            {
+                state.CurrentState = STAGE_Race_Game_Finished;
+                break;
+            }
+
             if (state.LastNeuroAction.compare("race_focus_first_place") == 0)
             {
                 PressKey('1');
@@ -135,6 +142,8 @@ namespace Mode_Race
             }
             break;
 
+        }
+            
         case STAGE_Race_Game_Finished:
             break;
 
@@ -163,12 +172,17 @@ namespace Mode_Race
 
     void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick)
     {
-        
+        if ((state.CurrentState == STAGE_Race_Game_Joining) && IsRaceJoinable() && !joinableSent)
+        {
+            client.sendContext("The race has loaded, the lobby is joinable!", false);
+            joinableSent = true;
+        }
+
         if ((state.CurrentState == STAGE_Race_Game_Waiting) && !lobbyFull)
         {
             if ((joinedPlayers + 1) <= GetRaceTotalPlayerCount())
             {
-                char buffer[128];
+                char buffer[256];
                 snprintf(buffer, sizeof(buffer), "Chat is joining... %d have joined out of %d.", GetRaceTotalPlayerCount(), maxLobbySize);
                 client.sendContext(std::string(buffer), false);
                 joinedPlayers = GetRaceTotalPlayerCount();
@@ -194,7 +208,7 @@ namespace Mode_Race
                 client.sendContext("The track has been selected. Start the lobby so chat can join, or go back if you want a different map!", true);
                 break;
             case STAGE_Race_Game_Joining:
-                client.sendContext("The lobby is open. Chat can join by typing !play in chat! Don't forget to join the game yourself!", true);
+                client.sendContext("The lobby is opening... Chat can join by typing !play in chat! Don't forget to join the game yourself!", true);
                 break;
             case STAGE_Race_Game_At_Results:
                 client.sendContext("The race results are on screen. Would you like to return to menu or play another random map?", true);
@@ -209,6 +223,7 @@ namespace Mode_Race
         {
             case STAGE_Race_Game_Started: 
             {
+
                 if (!bIsWaitingForResults && ((GetRaceFinishedPlayerCount() + GetRaceDeadPlayerCount()) == GetRaceTotalPlayerCount()))
                 {
                     state.CurrentState = STAGE_Race_Game_Finished;
@@ -226,7 +241,6 @@ namespace Mode_Race
                         sentFinished1st = true;
                     }
                 }
-
                 if (searchTick % 100 == 0)
                 {
                     int currentDead = GetRaceDeadPlayerCount();
@@ -328,7 +342,6 @@ namespace Mode_Race
 
                 Sleep(1000);
                 std::string top10 = ProcessRaceResults(10);
-                printf("asdasd\n");
 
                 std::string msg;
                 msg.append("The race has finished. Out of the ");

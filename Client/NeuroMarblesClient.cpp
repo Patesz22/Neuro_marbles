@@ -1,5 +1,6 @@
 #include "NeuroMarblesClient.h"
 #include "Gamemodes/Menu.h"
+#include "Gamemodes/Race.h"
 
 // Constructor implementation
 NeuroMarbles::NeuroMarbles(const std::string& uri, const std::string& game_name, MarblesGameState& gameState,
@@ -117,8 +118,17 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
     }
     else if (actionName == "race_join_game" && state.CurrentState == STAGE_Race_Game_Joining)
     {
-        resp = "I have joined the race!";
-        bSuccess = true;
+        if (Mode_Race::IsRaceJoinable()) 
+        {
+            resp = "I have joined the race!";
+            bSuccess = true;
+        }
+        else 
+        {
+            resp = "The race has not finished loading yet, please wait a bit.";
+            bSuccess = false;
+        }
+        
     }
     else if (actionName == "race_start_game" && state.CurrentState == STAGE_Race_Game_Waiting)
     {

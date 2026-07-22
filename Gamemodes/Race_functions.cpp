@@ -577,82 +577,81 @@ namespace Mode_Race
 
     std::string GetFirstPlaceFinishedPlayer()
     {
-        SDK::UTopRacePositionsWidgetY2* TopPositionsHUD = nullptr;
+        SDK::AMarbleRaceGameMode* GameMode = GetMarbleGameMode();
 
-        // 1. Find the Live Race HUD (Your robust anchored method)
-        int initialObjectCount = SDK::UObject::GObjects->Num();
-        for (int i = initialObjectCount - 1; i >= 0; --i)
+        if (GameMode)
+        {
+            // Ask the Engine natively for the marble at Position 1!
+            SDK::AMarble* FirstPlaceMarble = GameMode->FindMarbleAtPosition(1);
+
+            if (FirstPlaceMarble && FirstPlaceMarble->_Displayname.IsValid())
+            {
+                std::wstring wName = FirstPlaceMarble->_Displayname.ToWString();
+
+                // Cleanly convert the wide string to a standard string
+                std::string playerNameStr;
+                for (wchar_t c : wName)
+                {
+                    // Keep standard ASCII characters (removes weird unprintable characters)
+                    if (c >= 32 && c <= 126)
+                    {
+                        playerNameStr += static_cast<char>(c);
+                    }
+                }
+
+                return playerNameStr;
+            }
+        }
+
+        // Return empty string if the race hasn't started or no one is in 1st yet
+        return "";
+    }
+
+    SDK::AMarbleRaceGameMode* GetMarbleGameMode()
+    {
+        // Scan backwards for the active GameMode
+        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+        {
+            if (i >= SDK::UObject::GObjects->Num()) break;
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+
+            if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()) && !Obj->IsDefaultObject())
+            {
+                return static_cast<SDK::AMarbleRaceGameMode*>(Obj);
+            }
+        }
+        return nullptr;
+    }
+
+
+    bool IsRaceJoinable()
+    {
+        // Scan backwards to find the active GameMode
+        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
             if (i >= SDK::UObject::GObjects->Num()) break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
+            int32_t d; float df;
+
+            // Memory safety check
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
             if (Obj->IsDefaultObject()) continue;
 
-            if (Obj->IsA(SDK::UTopRacePositionsWidgetY2::StaticClass()))
+            // Find the specific Marbles Game Mode
+            if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
             {
-                if (Obj->GetFullName().find("Transient") != std::string::npos)
-                {
-                    TopPositionsHUD = static_cast<SDK::UTopRacePositionsWidgetY2*>(Obj);
-                    break;
-                }
+                SDK::AMarbleRaceGameMode* GameMode = static_cast<SDK::AMarbleRaceGameMode*>(Obj);
+
+                // This is false during the Map Intro, and flips to true the moment the intro ends
+                return GameMode->bCanJoinRace;
             }
         }
 
-        if (!TopPositionsHUD || !TopPositionsHUD->PositionsPanel)
-        {
-            return "";
-        }
-
-        // ONLY care about the 1st place player (Index 0 in the panel)
-        if (TopPositionsHUD->PositionsPanel->GetChildrenCount() > 0)
-        {
-            // Get the top widget directly from the UI slot
-            SDK::UWidget* rawChild = TopPositionsHUD->PositionsPanel->GetChildAt(0);
-
-            if (rawChild && rawChild->IsA(SDK::UTopRacePositionEntryWidgetY2::StaticClass()))
-            {
-                SDK::UTopRacePositionEntryWidgetY2* Entry = static_cast<SDK::UTopRacePositionEntryWidgetY2*>(rawChild);
-
-                if (Entry->PlayerNameTextBlock)
-                {
-                    // COLOR CHECK (Green = Finished)
-                    SDK::FLinearColor textColor = Entry->PlayerNameTextBlock->ColorAndOpacity.SpecifiedColor;
-
-                    // If Green channel is dominant, they have finished!
-                    if (Entry->PlayerNameTextBlock)
-                    {
-                        // HEX COLOR CHECK (#00d182)
-                        SDK::FLinearColor textColor = Entry->PlayerNameTextBlock->ColorAndOpacity.SpecifiedColor;
-
-                        // Target: R = 0.0, G = 0.82 (209/255), B = 0.51 (130/255)
-                        // We use a 0.15f tolerance to survive Unreal's Linear/sRGB conversions
-                        bool bIsRedMatch = textColor.R < 0.15f;
-                        bool bIsGreenMatch = std::abs(textColor.G - 0.82f) < 0.15f;
-                        bool bIsBlueMatch = std::abs(textColor.B - 0.51f) < 0.15f;
-
-                        if (bIsRedMatch && bIsGreenMatch && bIsBlueMatch)
-                        {
-                            SDK::FText rawFText = Entry->PlayerNameTextBlock->GetText();
-                            SDK::FString stringName = SDK::UKismetTextLibrary::Conv_TextToString(rawFText);
-                            std::wstring wName = stringName.ToWString();
-
-                            std::string playerNameStr;
-                            for (wchar_t c : wName) {
-                                playerNameStr += static_cast<char>(c);
-                            }
-
-                            return playerNameStr;
-                        }
-                    }
-                }
-            }
-
-            // Returns empty if 1st place hasn't finished
-            return "";
-        }
-
+        // Return false if the Game Mode hasn't loaded into memory yet
+        return false;
     }
 }
 

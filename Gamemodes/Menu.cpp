@@ -6,7 +6,6 @@ extern ENeuroState lastState;
 
 namespace Mode_Menu 
 {
-
     // Define Menu-specific actions
     nlohmann::json empty_schema;
     NeuroWebsocketpp::Action actContinue("click_welcome_continue", "Click to bypass the promo screen!", empty_schema);

@@ -12,15 +12,14 @@ namespace Mode_Race
     extern bool bIsMenuHooked;
     extern bool bIsHeartbeatHooked;
 
-    struct RaceResult {
+    struct RaceResult 
+    {
         int Rank;
         std::wstring PlayerName;
         int Score;
         float RaceTime;
         bool bIsValid;
     };
-
-
 
     bool StartRaceMatch();
     bool PressInGameButton(const std::string& buttonName);
@@ -36,6 +35,9 @@ namespace Mode_Race
     std::string GetFirstPlaceFinishedPlayer();
 
     void TurnCamera();
+
+    SDK::AMarbleRaceGameMode* GetMarbleGameMode();
+    bool IsRaceJoinable();
     bool ClickNextRandomTrack();
     bool ClickReturnToRaceMenu();
 
