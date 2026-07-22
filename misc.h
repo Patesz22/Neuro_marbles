@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
 
-void PressKey(int virtualKeyCode);
+void PressKey(char key);
 
 bool SafeRead4Bytes(uintptr_t address, int32_t* outInt, float* outFloat);
 bool SafeProcessEvent(SDK::UObject* TargetObject, SDK::UFunction* Function, void* Params);

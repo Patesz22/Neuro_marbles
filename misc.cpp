@@ -1,12 +1,34 @@
-#pragma once
 #include "misc.h"
+#include <windows.h>
 
 
-void PressKey(int virtualKeyCode)
+void PressKey(char key)
 {
-    keybd_event(virtualKeyCode, 0, 0, 0);
-    Sleep(100);
-    keybd_event(virtualKeyCode, 0, KEYEVENTF_KEYUP, 0);
+    HWND gameWindow = FindWindowA("UnrealWindow", "Marbles On Stream");
+    if (!gameWindow)
+    {
+        gameWindow = FindWindowA("UnrealWindow", NULL); // Fallback
+    }
+
+    if (gameWindow)
+    {
+        UINT scanCode = MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
+
+        // 2. Construct the exact 32-bit lParam that Unreal Engine requires
+        LPARAM lParamDown = 1 | (scanCode << 16);
+        LPARAM lParamUp = 1 | (scanCode << 16) | (1 << 30) | (1 << 31);
+
+        // 3. Send the formatted messages
+        PostMessage(gameWindow, WM_KEYDOWN, (WPARAM)key, lParamDown);
+        Sleep(50); // Important: Give UE's tick rate time to process the Down state
+        PostMessage(gameWindow, WM_KEYUP, (WPARAM)key, lParamUp);
+
+        printf("[Neuro] Sent UE-Formatted Background Key: %c\n", key);
+    }
+    else
+    {
+        printf("[ERROR] Could not find the UnrealWindow!\n");
+    }
 }
 
 bool SafeRead4Bytes(uintptr_t address, int32_t* outInt, float* outFloat)
