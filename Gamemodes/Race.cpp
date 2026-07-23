@@ -86,6 +86,12 @@ namespace Mode_Race
                 joinedPlayers = 0;
                 lobbyFull = false;
                 sentFinished1st = false;
+                currentObservedLeader = L"";
+                previousLeader = L"";
+                consecutiveLeaderSeconds = 0;
+                lastAnnouncedLeader = L"";
+                lastAnnouncementTick = 0;
+                lastDeadCount = 0;
             }
             break;
 
@@ -96,6 +102,11 @@ namespace Mode_Race
                 state.CurrentState = STAGE_Race_Game_Waiting;
                 state.bNeuroDidAction = false;
                 sentFinished1st = false;
+                currentObservedLeader = L"";
+                previousLeader = L"";
+                consecutiveLeaderSeconds = 0;
+                lastAnnouncedLeader = L"";
+                lastAnnouncementTick = 0;
             }
             break;
 
@@ -119,26 +130,38 @@ namespace Mode_Race
             if (state.LastNeuroAction.compare("race_focus_first_place") == 0)
             {
                 PressKey('1');
+
+                std::string tmp = "Currently viewing ";
+                tmp.append(GetSpectatedPlayerName());
+                client.sendContext(tmp, false);
+                tmp.clear();
+
                 state.bNeuroDidAction = false;
-                Sleep(1000);
             }
             else if (state.LastNeuroAction.compare("race_focus_second_place") == 0)
             {
                 PressKey('2');
+                std::string tmp = "Currently viewing ";
+                tmp.append(GetSpectatedPlayerName());
+                client.sendContext(tmp, false);
+                tmp.clear();
+
                 state.bNeuroDidAction = false;
-                Sleep(1000);
             }
             else if (state.LastNeuroAction.compare("race_focus_third_place") == 0)
             {
                 PressKey('3');
+                std::string tmp = "Currently viewing ";
+                tmp.append(GetSpectatedPlayerName());
+                client.sendContext(tmp, false);
+                tmp.clear();
+
                 state.bNeuroDidAction = false;
-                Sleep(1000);
             }
             else if (state.LastNeuroAction.compare("rotate_cam") == 0)
             {
                 TurnCamera();
                 state.bNeuroDidAction = false;
-                Sleep(1000);
             }
             break;
 
@@ -164,7 +187,6 @@ namespace Mode_Race
                     state.bNeuroDidAction = false;
                 }
                 state.CurrentState = STAGE_Race_Game_Joining;
-                Sleep(5000);
             }
             break;
         }

@@ -38,6 +38,8 @@ namespace Mode_Race
 
     SDK::AMarbleRaceGameMode* GetMarbleGameMode();
     bool IsRaceJoinable();
+    std::string GetSpectatedPlayerName();
+
     bool ClickNextRandomTrack();
     bool ClickReturnToRaceMenu();
 

@@ -126,31 +126,55 @@ namespace Mode_Race
 
     bool PressInGameButton(const std::string& buttonName)
     {
+        bool bClickedAtLeastOne = false;
         int initialObjectCount = SDK::UObject::GObjects->Num();
+
         for (int i = initialObjectCount - 1; i >= 0; --i)
         {
             if (i >= SDK::UObject::GObjects->Num()) break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            if (!Obj || Obj->IsDefaultObject()) continue;
+
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            // Skip garbage collected items
+            std::string objName = Obj->GetName();
+            if (objName.find("TRASH") != std::string::npos ||
+                objName.find("Default__") != std::string::npos ||
+                objName.find("REINST") != std::string::npos)
+            {
+                continue;
+            }
 
             if (Obj->IsA(SDK::UW_MOSButton_Small_C::StaticClass()))
             {
                 std::string fullName = Obj->GetFullName();
+
+                // Loose matching: As long as it's the right button inside the Race Form
                 if (fullName.find(buttonName) != std::string::npos &&
-                    fullName.find("RaceFormWidget") != std::string::npos &&
-                    fullName.find("Transient") != std::string::npos)
+                    fullName.find("RaceFormWidget") != std::string::npos)
                 {
-                    printf(">> [STAGE 5] Executing Native Click. <<\n");
                     SDK::UW_MOSButton_Small_C* JoinBtn = static_cast<SDK::UW_MOSButton_Small_C*>(Obj);
+
+                    printf(">> [STAGE 5] Forcing click on: %s\n", fullName.c_str());
+
+                    // Click it!
                     JoinBtn->HandleButtonPressed();
                     JoinBtn->HandleButtonClicked();
                     JoinBtn->HandleButtonReleased();
-                    return true;
+
+                    bClickedAtLeastOne = true;
+
+                    // DO NOT RETURN HERE! 
+                    // We keep looping to ensure we hit EVERY version of this button in memory.
+                    // The dead ones will fail silently, the live one will trigger the game.
                 }
             }
         }
-        return false;
+
+        return bClickedAtLeastOne;
     }
 
     int GetRaceTotalPlayerCount()
@@ -393,66 +417,85 @@ namespace Mode_Race
 
     bool ClickNextRandomTrack()
     {
-        SDK::UMarbleRaceWidgetY2* RaceWidget = nullptr;
+        // Scan backwards to find the live HUD
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
+            if (i >= SDK::UObject::GObjects->Num()) break;
+
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
             if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
             if (Obj->IsDefaultObject()) continue;
 
-            if (Obj->IsA(SDK::UMarbleRaceWidgetY2::StaticClass()))
+            // Ghost Object Filter
+            std::string objName = Obj->GetName();
+            if (objName.find("TRASH") != std::string::npos ||
+                objName.find("Default__") != std::string::npos ||
+                objName.find("REINST") != std::string::npos)
             {
-                std::string fullName = Obj->GetFullName();
-                if (fullName.find("Transient") != std::string::npos)
+                continue;
+            }
+
+            // Find the active HUD
+            if (Obj->IsA(SDK::AMarbleRaceHUDY2::StaticClass()))
+            {
+                SDK::AMarbleRaceHUDY2* HUD = static_cast<SDK::AMarbleRaceHUDY2*>(Obj);
+
+                // Access the HUD's official, verified pointer to the active Race Widget!
+                if (HUD->MarbleRaceWidget)
                 {
-                    RaceWidget = static_cast<SDK::UMarbleRaceWidgetY2*>(Obj);
-                    break;
+                    printf(">> [STAGE 5] Safely firing Random Track via the HUD! <<\n");
+                    HUD->MarbleRaceWidget->OnRandomTrackButtonClicked();
+
+                    // Return immediately so we don't accidentally double-click!
+                    return true;
                 }
             }
         }
 
-        if (RaceWidget)
-        {
-            printf(">> [STAGE 5] Firing the literal Random Track UI Event! <<\n");
-            RaceWidget->OnRandomTrackButtonClicked();
-            return true;
-        }
-
-        printf("[!] Could not find active MarbleRaceWidgetY2.\n");
+        printf("[!] Could not find active HUD or MarbleRaceWidget.\n");
         return false;
     }
 
     bool ClickReturnToRaceMenu()
     {
-        SDK::UMarbleRaceWidgetY2* RaceWidget = nullptr;
-
+        // Scan backwards to find the live HUD
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
+            if (i >= SDK::UObject::GObjects->Num()) break;
+
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
             if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
             if (Obj->IsDefaultObject()) continue;
 
-            if (Obj->IsA(SDK::UMarbleRaceWidgetY2::StaticClass()))
+            // Ghost Object Filter
+            std::string objName = Obj->GetName();
+            if (objName.find("TRASH") != std::string::npos ||
+                objName.find("Default__") != std::string::npos ||
+                objName.find("REINST") != std::string::npos)
             {
-                std::string fullName = Obj->GetFullName();
-                if (fullName.find("Transient") != std::string::npos)
+                continue;
+            }
+
+            // Find the active HUD
+            if (Obj->IsA(SDK::AMarbleRaceHUDY2::StaticClass()))
+            {
+                SDK::AMarbleRaceHUDY2* HUD = static_cast<SDK::AMarbleRaceHUDY2*>(Obj);
+
+                // Access the HUD's official, verified pointer to the active Race Widget!
+                if (HUD->MarbleRaceWidget)
                 {
-                    RaceWidget = static_cast<SDK::UMarbleRaceWidgetY2*>(Obj);
-                    break;
+                    printf(">> [STAGE 5] Safely firing Main Menu via the HUD! <<\n");
+                    HUD->MarbleRaceWidget->OnMainMenuButtonClicked();
+
+                    // Return immediately so we don't accidentally double-click!
+                    return true;
                 }
             }
         }
 
-        if (RaceWidget)
-        {
-            printf(">> [STAGE 5] Firing the literal Main Menu UI Event! <<\n");
-            RaceWidget->OnMainMenuButtonClicked();
-            return true;
-        }
-
-        printf("[!] Could not find active MarbleRaceWidgetY2.\n");
+        printf("[!] Could not find active HUD or MarbleRaceWidget.\n");
         return false;
     }
 
@@ -577,33 +620,52 @@ namespace Mode_Race
 
     std::string GetFirstPlaceFinishedPlayer()
     {
-        SDK::AMarbleRaceGameMode* GameMode = GetMarbleGameMode();
+        // 1. Get the GameMode
+        SDK::AMarbleRaceGameMode* GameMode = GetMarbleGameMode(); // Uses your helper from earlier
+        if (!GameMode) return "";
 
-        if (GameMode)
+        // 2. Ask the Engine for the finished marble at position 1
+        SDK::AMarble* FirstPlaceMarble = GameMode->FindMarbleAtPosition(1);
+
+        if (FirstPlaceMarble)
         {
-            // Ask the Engine natively for the marble at Position 1!
-            SDK::AMarble* FirstPlaceMarble = GameMode->FindMarbleAtPosition(1);
-
-            if (FirstPlaceMarble && FirstPlaceMarble->_Displayname.IsValid())
+            // 3. ATTEMPT A: Read from the persistent APlayerState (Safest)
+            if (FirstPlaceMarble->PlayerState)
             {
-                std::wstring wName = FirstPlaceMarble->_Displayname.ToWString();
+                SDK::FString fName = FirstPlaceMarble->PlayerState->GetPlayerName();
+                std::wstring wName = fName.ToWString();
+                std::string cleanName = "";
 
-                // Cleanly convert the wide string to a standard string
-                std::string playerNameStr;
                 for (wchar_t c : wName)
                 {
-                    // Keep standard ASCII characters (removes weird unprintable characters)
-                    if (c >= 32 && c <= 126)
-                    {
-                        playerNameStr += static_cast<char>(c);
-                    }
+                    if (c >= 32 && c <= 126) cleanName += static_cast<char>(c);
                 }
 
-                return playerNameStr;
+                if (!cleanName.empty())
+                {
+                    return cleanName;
+                }
+            }
+
+            // 4. ATTEMPT B: Fallback to the raw internal _Username variable
+            if (FirstPlaceMarble->_Username.IsValid())
+            {
+                std::wstring wName = FirstPlaceMarble->_Username.ToWString();
+                std::string cleanName = "";
+
+                for (wchar_t c : wName)
+                {
+                    if (c >= 32 && c <= 126) cleanName += static_cast<char>(c);
+                }
+
+                if (!cleanName.empty())
+                {
+                    return cleanName;
+                }
             }
         }
 
-        // Return empty string if the race hasn't started or no one is in 1st yet
+        // Return empty if the race isn't over yet, or no one has finished
         return "";
     }
 
@@ -653,6 +715,68 @@ namespace Mode_Race
         // Return false if the Game Mode hasn't loaded into memory yet
         return false;
     }
+
+    std::string GetSpectatedPlayerName()
+    {
+        // Scan memory for the Local Player Controller
+        for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
+        {
+            if (i >= SDK::UObject::GObjects->Num()) break;
+
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::APlayerController::StaticClass()))
+            {
+                SDK::APlayerController* PC = static_cast<SDK::APlayerController*>(Obj);
+
+                // 1. Ask the Engine which Actor the camera is currently attached to!
+                SDK::AActor* ViewTarget = PC->GetViewTarget();
+
+                if (ViewTarget && ViewTarget->IsA(SDK::AMarble::StaticClass()))
+                {
+                    SDK::AMarble* SpectatedMarble = static_cast<SDK::AMarble*>(ViewTarget);
+
+                    // 2. Prioritize reading from the APlayerState class you just dumped!
+                    if (SpectatedMarble->PlayerState)
+                    {
+                        // Convert the engine string using Dumper-7's wrapper
+                        SDK::FString fName = SpectatedMarble->PlayerState->GetPlayerName();
+                        std::wstring wName = fName.ToWString();
+                        std::string cleanName = "";
+
+                        for (wchar_t c : wName)
+                        {
+                            if (c >= 32 && c <= 126) cleanName += static_cast<char>(c);
+                        }
+
+                        if (!cleanName.empty()) return cleanName;
+                    }
+
+                    // 3. Fallback: If PlayerState is missing, check the internal _Username we found earlier
+                    if (SpectatedMarble->_Username.IsValid())
+                    {
+                        std::wstring wName = SpectatedMarble->_Username.ToWString();
+                        std::string cleanName = "";
+
+                        for (wchar_t c : wName)
+                        {
+                            if (c >= 32 && c <= 126) cleanName += static_cast<char>(c);
+                        }
+
+                        return cleanName;
+                    }
+                }
+            }
+        }
+
+        return "";
+    }
+
+
+
 }
 
 
