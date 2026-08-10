@@ -45,21 +45,6 @@ bool SafeRead4Bytes(uintptr_t address, int32_t* outInt, float* outFloat)
     }
 }
 
-bool SafeProcessEvent(SDK::UObject* TargetObject, SDK::UFunction* Function, void* Params)
-{
-    if (!TargetObject || !Function) return false;
-
-    __try
-    {
-        TargetObject->ProcessEvent(Function, Params);
-        return true;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        return false;
-    }
-}
-
 bool SafeCopyMemory(void* destination, void* source, size_t size)
 {
     if (!source || !destination || size <= 0) return false;
