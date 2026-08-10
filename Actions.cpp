@@ -42,16 +42,16 @@ void RegisterAStage(EActionRegistry operation, ENeuroState targetStage, NeuroMar
 
     case STAGE_Race_Game_Waiting:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Race::actRaceStartGame });
+            client.sendRegisterActions({ Mode_Race::actRaceStartGame, Mode_Race::actRaceGetJoinedPlayers });
         else
-            client.sendUnregisterActions({ "race_start_game" });
+            client.sendUnregisterActions({ "race_start_game", "get_joined_players" });
         break;
 
     case STAGE_Race_Game_Started:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Race::actRaceFocusFirst, Mode_Race::actRaceFocusSecond, Mode_Race::actRaceFocusThird, Mode_Race::actRotateCamera });
+            client.sendRegisterActions({ Mode_Race::actRaceFocusFirst, Mode_Race::actRaceFocusSecond, Mode_Race::actRaceFocusThird, Mode_Race::actRotateCamera, });
         else
-            client.sendUnregisterActions({ "race_focus_first_place", "race_focus_second_place", "race_focus_third_place", "rotate_cam" });
+            client.sendUnregisterActions({ "race_focus_first_place", "race_focus_second_place", "race_focus_third_place", "rotate_cam"});
         break;
 
     case STAGE_Race_Game_At_Results:

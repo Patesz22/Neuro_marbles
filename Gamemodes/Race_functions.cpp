@@ -776,6 +776,97 @@ namespace Mode_Race
     }
 
 
+    std::string GetJoinedPlayers(int amount)
+    {
+        if (amount <= 0) 
+            return "Invalid amount requested.";
+
+        if (amount > 1000) 
+            amount = 1000; // Cap
+
+        std::vector<std::string> joinedPlayers;
+
+        // Scan memory for spawned marbles
+        for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+        {
+            if (i >= SDK::UObject::GObjects->Num()) break;
+
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (Obj->IsDefaultObject()) continue;
+
+            // Ghost Object Filter
+            std::string objName = Obj->GetName();
+            if (objName.find("TRASH") != std::string::npos ||
+                objName.find("Default__") != std::string::npos ||
+                objName.find("REINST") != std::string::npos)
+            {
+                continue;
+            }
+
+            // If it is a Marble, grab the name!
+            if (Obj->IsA(SDK::AMarble::StaticClass()))
+            {
+                SDK::AMarble* Marble = static_cast<SDK::AMarble*>(Obj);
+                std::string cleanName = "";
+
+                // ATTEMPT A: Read from the APlayerState
+                if (Marble->PlayerState)
+                {
+                    SDK::FString fName = Marble->PlayerState->GetPlayerName();
+                    std::wstring wName = fName.ToWString();
+                    for (wchar_t c : wName)
+                    {
+                        if (c >= 32 && c <= 126) 
+                            cleanName += static_cast<char>(c);
+                    }
+                }
+
+                // ATTEMPT B: Fallback to _Username
+                if (cleanName.empty() && Marble->_Username.IsValid())
+                {
+                    std::wstring wName = Marble->_Username.ToWString();
+                    for (wchar_t c : wName)
+                    {
+                        if (c >= 32 && c <= 126) 
+                            cleanName += static_cast<char>(c);
+                    }
+                }
+
+                // If we found a valid name, add it to our list
+                if (!cleanName.empty())
+                {
+                    joinedPlayers.push_back(cleanName);
+
+                    // Stop searching once we hit the amount Neuro asked for
+                    if (joinedPlayers.size() >= amount)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Format the vector into a single, comma-separated string
+        if (joinedPlayers.empty())
+        {
+            return "No players have joined the lobby yet.";
+        }
+
+        std::string result = "";
+        for (size_t i = 0; i < joinedPlayers.size(); ++i)
+        {
+            result += joinedPlayers[i];
+            if (i < joinedPlayers.size() - 1)
+            {
+                result += ", ";
+            }
+        }
+
+
+        return result;
+    }
 
 }
 

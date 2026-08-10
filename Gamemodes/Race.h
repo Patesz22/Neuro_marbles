@@ -44,5 +44,6 @@ namespace Mode_Race
     bool ClickReturnToRaceMenu();
 
     bool AutoScrollRaceResults(int searchTick);
+    std::string GetJoinedPlayers(int amount);
 
 }

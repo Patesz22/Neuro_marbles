@@ -5,7 +5,7 @@ todo
 * support for community maps
 * ~~change "force action menu navigation" to normal action based~~
 * ~~send neuro context on race results (finished, DNF) - without context flooding (top 10 sent)~~
-* make camera automatically rotate on race start
+* ~~make camera automatically rotate on race start~~ **manual action**
 * ~~action for "exit to main menu" after results~~
 * ~~action for "next random race" after results~~
 * make the code "neuro proof"
@@ -26,4 +26,5 @@ todo
 * Add twitch chat manual override for specific user
 * ~~Add console and file logging~~
 
-
+broken after 5.8.1 update:
+GetMaxPlayers

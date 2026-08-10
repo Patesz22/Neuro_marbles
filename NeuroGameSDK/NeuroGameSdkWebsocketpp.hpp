@@ -110,8 +110,13 @@ namespace NeuroWebsocketpp {
                 if (dataObj.contains("name") && dataObj["name"].is_string()) {
                     name = dataObj["name"];
                 }
-                if (dataObj.contains("data") && dataObj["data"].is_string()) {
-                    data = dataObj["data"];
+                if (dataObj.contains("data")) {
+                    if (dataObj["data"].is_string()) {
+                        data = dataObj["data"].get<std::string>(); // stringified JSON
+                    }
+                    else {
+                        data = dataObj["data"].dump(); // native JSON object
+                    }
                 }
 
                 if (dataObj.contains("session") && dataObj["session"].is_object()) {

@@ -32,6 +32,23 @@ namespace Mode_Race
     NeuroWebsocketpp::Action actRaceStartLobby("race_start_lobby", "Start the lobby so players can join!", empty_schema);
     NeuroWebsocketpp::Action actRaceJoinGame("race_join_game", "Spawn your own marble into the race!", empty_schema);
     NeuroWebsocketpp::Action actRaceStartGame("race_start_game", "Start the game on the current map, but WAIT until the lobby is full!", empty_schema);
+    NeuroWebsocketpp::Action actRaceGetJoinedPlayers("get_joined_players", "Returns the specified amount of currently joined players. Input range is 1-1000, single integer.", 
+        nlohmann::json::parse(R"(
+    {
+        "type": "object",
+        "properties": {
+            "amount": {
+                "type": "integer",
+                "description": "The number of players to fetch. Input range is 1-1000.",
+                "minimum": 1,
+                "maximum": 1000
+            }
+        },
+        "required": ["amount"]
+    }
+    )")
+    );
+
     NeuroWebsocketpp::Action actRaceFocusFirst("race_focus_first_place", "Focus the first place player in view", empty_schema);
     NeuroWebsocketpp::Action actRaceFocusSecond("race_focus_second_place", "Focus the second place player in view", empty_schema);
     NeuroWebsocketpp::Action actRaceFocusThird("race_focus_third_place", "Focus the third place player in view", empty_schema);
@@ -111,9 +128,41 @@ namespace Mode_Race
             break;
 
         case STAGE_Race_Game_Waiting:
-            if (PressInGameButton("StartButton"))
+            if (state.LastNeuroAction.compare("race_start_game") == 0)
             {
-                state.CurrentState = STAGE_Race_Game_Started;
+                if (PressInGameButton("StartButton"))
+                {
+                    state.CurrentState = STAGE_Race_Game_Started;
+                    state.bNeuroDidAction = false;
+                }
+            }
+            else if (state.LastNeuroAction.compare("get_joined_players") == 0)
+            {
+                int requestedAmount = 10;
+
+                try
+                {
+                    // 1. Parse the JSON-stringified data sent by Neuro
+                    // (Assuming state.ActionData is a std::string containing the payload)
+                    nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+
+                    // 2. Extract the amount she chose
+                    if (parsedData.contains("amount") && parsedData["amount"].is_number_integer())
+                    {
+                        requestedAmount = parsedData["amount"].get<int>();
+                    }
+                }
+                catch (const nlohmann::json::parse_error& e)
+                {
+                    printf("[Neuro] Failed to parse action data: %s\n", e.what());
+                }
+                std::string playersList = GetJoinedPlayers(requestedAmount);
+                printf("[Neuro] Fetched %d joined players: %s\n", requestedAmount, playersList.c_str());
+                std::string tmp = "Joined players: ";
+                tmp.append(playersList);
+                client.sendContext(tmp, false);
+                tmp.clear();
+
                 state.bNeuroDidAction = false;
             }
             break;

@@ -23,6 +23,7 @@ namespace Mode_Race
     extern NeuroWebsocketpp::Action actRaceStartLobby;
     extern NeuroWebsocketpp::Action actRaceJoinGame;
     extern NeuroWebsocketpp::Action actRaceStartGame;
+    extern NeuroWebsocketpp::Action actRaceGetJoinedPlayers;
     extern NeuroWebsocketpp::Action actRaceFocusFirst;
     extern NeuroWebsocketpp::Action actRaceFocusSecond;
     extern NeuroWebsocketpp::Action actRaceFocusThird;

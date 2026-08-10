@@ -35,4 +35,5 @@ public:
     std::string LastNeuroAction = "";
     std::string ActiveCharacterId;
     std::string ActiveCharacterName;
+    std::string lastData = "";
 };

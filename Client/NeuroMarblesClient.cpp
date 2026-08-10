@@ -1,5 +1,6 @@
 #include "NeuroMarblesClient.h"
 #include "Gamemodes/Menu.h"
+#include "Gamemodes/GameModes.h"
 #include "Gamemodes/Race.h"
 
 // Constructor implementation
@@ -31,6 +32,7 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
     }
 
     std::string raw_data = response.getData();
+    state.lastData = response.getData();
     std::string actionName = "";
     nlohmann::json parsed_data;
 
@@ -76,6 +78,7 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
 
     std::string resp = "";
     bool bSuccess = false;
+
 
     if (state.LastNeuroAction.data())
     {
@@ -134,6 +137,61 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
     {
         resp = "I have started the race! Let's roll! Don't forget to rotate the camera next, so chat can see the race better.";
         bSuccess = true;
+    }
+    else if (actionName == "get_joined_players" && state.CurrentState == STAGE_Race_Game_Waiting)
+    {
+        bool correct = false;
+        int requestedAmount = 0;
+
+        if (!state.lastData.empty())
+        {
+            try
+            {
+                nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+
+                if (parsedData.contains("amount") && parsedData["amount"].is_number())
+                {
+                    requestedAmount = parsedData["amount"].get<int>();
+
+                    // 2. Validate bounds manually (1 to 1000)
+                    if (requestedAmount >= 1 && requestedAmount <= 1000)
+                    {
+                        correct = true;
+                    }
+                    else
+                    {
+                        printf("[DEBUG] Amount out of bounds: %d\n", requestedAmount);
+                    }
+                }
+                else
+                {
+                    printf("[DEBUG] Payload missing 'amount' or not a number.\n");
+                }
+            }
+            catch (const std::exception& e)
+            {
+                // Print the exact error so we know if the parse fails!
+                printf("[DEBUG] JSON Validation Exception: %s\n", e.what());
+                correct = false;
+            }
+        }
+        else
+        {
+            printf("[DEBUG] state.lastData was empty!\n");
+        }
+
+        //validate here
+        if (correct) // if successfully validated
+        {
+            resp = "The data is correct, getting the requested number of players.";
+            bSuccess = true;
+        }
+        else // if incorrent
+        {
+            resp = "The data format is incorrect, please try again!";
+            bSuccess = false;
+        }
+
     }
     else if (actionName == "race_focus_first_place" && state.CurrentState == STAGE_Race_Game_Started)
     {
