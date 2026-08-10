@@ -267,9 +267,9 @@ namespace Mode_Menu
 
     int GetMaxLobbySize()
     {
-        SDK::UObject* ActiveMaxPlayersWidget = nullptr;
+        SDK::UW_RaceUserFacingExperience_C* ActiveRaceMenu = nullptr;
 
-        // 1. Sweep BACKWARDS to find the ACTIVE UI widget, bypassing old ghost menus!
+        // 1. Sweep BACKWARDS to find the ACTIVE Race Menu widget
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -277,45 +277,30 @@ namespace Mode_Menu
             int32_t d; float df;
             if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
 
-            // Find the widget blueprint
-            if (!Obj->IsDefaultObject() && Obj->GetFullName().find("W_MaxPlayers_C") != std::string::npos)
+            // 2. Use the safe StaticClass() check to find the Race Menu
+            if (!Obj->IsDefaultObject() && Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()))
             {
-                // CRITICAL: Ensure it's in the Transient package (meaning it is currently on screen)
+                // CRITICAL: Ensure it's in the Transient package (meaning it is actively on screen)
                 if (Obj->GetFullName().find("Transient") != std::string::npos)
                 {
-                    ActiveMaxPlayersWidget = Obj;
-                    break; // Found the live one! Stop searching.
+                    ActiveRaceMenu = static_cast<SDK::UW_RaceUserFacingExperience_C*>(Obj);
+                    break;
                 }
             }
         }
 
-        // 2. Extract the values using your exact dump offsets
-        if (ActiveMaxPlayersWidget)
+        // 3. Call the built-in SDK function!
+        if (ActiveRaceMenu)
         {
-            uintptr_t baseAddr = reinterpret_cast<uintptr_t>(ActiveMaxPlayersWidget);
+            // This natively executes the logic the game developers wrote 
+            // to determine the lobby size, 100% immune to offset changes!
+            int32_t maxPlayers = ActiveRaceMenu->GetMaxPlayers();
 
-            int32_t lastCommittedValue = *reinterpret_cast<int32_t*>(baseAddr + 0x0308);
-            int32_t maxPlayers = *reinterpret_cast<int32_t*>(baseAddr + 0x030C);
-            int32_t defaultPlayers = *reinterpret_cast<int32_t*>(baseAddr + 0x0314);
-
-            printf("[DEBUG] Active W_MaxPlayers_C -> LastCommitted: %d | MaxPlayers: %d | Default: %d\n",
-                lastCommittedValue, maxPlayers, defaultPlayers);
-
-            if (lastCommittedValue > 0)
-            {
-                return lastCommittedValue;
-            }
-            if (maxPlayers > 0)
-            {
-                return maxPlayers;
-            }
-            if (defaultPlayers > 0)
-            {
-                return defaultPlayers;
-            }
+            printf("[DEBUG] Active Race Menu found -> MaxPlayers: %d\n", maxPlayers);
+            return maxPlayers;
         }
 
-        printf("[!] Could not find the active W_MaxPlayers_C widget in memory.\n");
+        printf("[!] Could not find the active Race Menu widget in memory.\n");
         return -1;
     }
 
