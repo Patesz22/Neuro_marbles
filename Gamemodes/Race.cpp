@@ -158,6 +158,54 @@ namespace Mode_Race
 
                 state.NeuroDidAction = false;
             }
+            else if (state.LastNeuroAction.compare("kick_player") == 0)
+            {
+                try
+                {
+                    nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+                    if (parsedData.is_string()) parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+
+                    std::string requestedUsername = parsedData["username"].get<std::string>();
+
+                    SDK::AMarbleRaceGameMode* ActiveGameMode = nullptr;
+
+                    // Find the active GameMode 
+                    for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+                    {
+                        SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+                        if (!Obj || Obj->IsDefaultObject()) continue;
+
+                        if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
+                        {
+                            ActiveGameMode = static_cast<SDK::AMarbleRaceGameMode*>(Obj);
+                            break;
+                        }
+                    }
+
+                    if (ActiveGameMode)
+                    {
+                        // Convert to Unreal Wide String
+                        std::wstring wUsername(requestedUsername.begin(), requestedUsername.end());
+                        SDK::FString ueUsername(wUsername.c_str());
+
+                        // The KickPlayer function expects both Username and DisplayName.
+                        // Supplying the username to both works perfectly.
+                        ActiveGameMode->KickPlayer(ueUsername, ueUsername);
+
+                        printf("[Neuro] Kicked player: %s\n", requestedUsername.c_str());
+                    }
+                    else
+                    {
+                        printf("[Neuro] Could not find active GameMode to kick player: %s\n", requestedUsername.c_str());
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    printf("[DEBUG] JSON Parse Error in kick_player execution: %s\n", e.what());
+                }
+
+                state.NeuroDidAction = false;
+            }
             break;
 
         case STAGE_Race_Game_Started:

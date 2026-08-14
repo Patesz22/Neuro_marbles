@@ -19,7 +19,7 @@ todo
   * BoostMarble
   * DestroyMarble
 
-* action for kicking player(s) + ~~send neuro context on joined players (action)~~
+* ~~action for kicking player(s) + ~~~~send neuro context on joined players (action)~~
 * increase the lobby size
   * there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
   * maybe ask the devs to allow us to use lobbies with more players

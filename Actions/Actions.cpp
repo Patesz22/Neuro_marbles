@@ -42,10 +42,10 @@ void RegisterAStage(EActionRegistry operation, ENeuroState targetStage, NeuroMar
 
     case STAGE_Race_Game_Waiting:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Race::actRaceStartGame, *Mode_Race::actRaceGetJoinedPlayers });
+            client.sendRegisterActions({ Mode_Race::actRaceStartGame, *Mode_Race::actRaceGetJoinedPlayers, *Mode_Race::actKickPlayer });
         else
         {
-            client.sendUnregisterActions({ "race_start_game", "get_joined_players" });
+            client.sendUnregisterActions({ "race_start_game", "get_joined_players", "kick_player"});
             Sleep(10000); // race start delay
         }
         break;

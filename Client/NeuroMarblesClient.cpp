@@ -182,6 +182,63 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
         }
 
     }
+    else if (actionName == "kick_player" && state.CurrentState == STAGE_Race_Game_Waiting)
+    {
+        bool correct = false;
+        std::string requestedUsername = "";
+
+        if (!state.lastData.empty())
+        {
+            try
+            {
+                nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+                if (parsedData.is_string()) parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+
+                if (parsedData.is_object() && parsedData.contains("username") && parsedData["username"].is_string())
+                {
+                    requestedUsername = parsedData["username"].get<std::string>();
+
+                    long long currentTime = GetCurrentTimeMs();
+                    long long cooldownExpiry = 0;
+
+                    if (GetGlobalCooldowns().contains("kick_cooldown"))
+                    {
+                        cooldownExpiry = GetGlobalCooldowns()["kick_cooldown"].get<long long>();
+                    }
+
+                    if (currentTime < cooldownExpiry)
+                    {
+                        int remainingSeconds = (cooldownExpiry - currentTime) / 1000;
+                        resp = "I can't do that right now! The kick command is on cooldown for another " + std::to_string(remainingSeconds) + " seconds.";
+                        bSuccess = false;
+                    }
+                    else
+                    {
+                        correct = true;
+                    }
+                }
+            }
+            catch (const std::exception& e)
+            {
+                printf("[DEBUG] JSON Parse Error: %s\n", e.what());
+            }
+        }
+
+        if (correct)
+        {
+            // 1-second cooldown
+            long long currentTime = GetCurrentTimeMs();
+            GetGlobalCooldowns()["kick_cooldown"] = currentTime + (1 * 1000);
+
+            resp = "Kicking " + requestedUsername + " from the race!";
+            bSuccess = true;
+        }
+        else
+        {
+            resp = "The data format is incorrect. Please provide a string 'username'.";
+            bSuccess = false;
+        }
+    }
     else if (actionName == "race_focus_first_place" && state.CurrentState == STAGE_Race_Game_Started)
     {
         resp = "I am currently watching first place. Let's cheer for them!";

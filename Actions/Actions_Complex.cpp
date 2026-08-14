@@ -5,6 +5,7 @@ namespace Mode_Race
     NeuroWebsocketpp::Action* actRaceGetJoinedPlayers = nullptr;
     NeuroWebsocketpp::Action* actSetGlobalGravity = nullptr;
     NeuroWebsocketpp::Action* actSetMarbleMass = nullptr;
+    NeuroWebsocketpp::Action* actKickPlayer = nullptr;
 
     void InitComplexActions()
     {
@@ -81,6 +82,26 @@ namespace Mode_Race
                         }
                     },
                     "required": ["username", "amount"]
+                }
+                )")
+            );
+        }
+
+        if (!actKickPlayer)
+        {
+            actKickPlayer = new NeuroWebsocketpp::Action(
+                "kick_player",
+                "Kicks a specific viewer from the current race.",
+                nlohmann::json::parse(R"(
+                {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "description": "The exact Twitch username of the player to kick."
+                        }
+                    },
+                    "required": ["username"]
                 }
                 )")
             );
