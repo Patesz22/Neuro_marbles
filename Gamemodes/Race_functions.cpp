@@ -859,6 +859,36 @@ namespace Mode_Race
         return oldGravity;
     }
 
+    SDK::AMarble* FindMarble(const std::string& targetUsername)
+    {
+        SDK::AMarbleRaceGameMode* ActiveGameMode = nullptr;
+
+        for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+        {
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+            if (!Obj || Obj->IsDefaultObject()) continue;
+
+            if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
+            {
+                ActiveGameMode = static_cast<SDK::AMarbleRaceGameMode*>(Obj);
+                break;
+            }
+        }
+
+        if (!ActiveGameMode)
+        {
+            return nullptr; // Race hasn't started or GameMode couldn't be found
+        }
+
+        // Convert standard C++ string into a wide string
+        std::wstring wUsername(targetUsername.begin(), targetUsername.end());
+
+        // Unreal FString 
+        SDK::FString ueUsername(wUsername.c_str());
+
+        return ActiveGameMode->FindMarble(ueUsername);
+    }
+
 }
 
 

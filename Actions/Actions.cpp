@@ -52,9 +52,9 @@ void RegisterAStage(EActionRegistry operation, ENeuroState targetStage, NeuroMar
 
     case STAGE_Race_Game_Started:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Race::actRaceFocusFirst, Mode_Race::actRaceFocusSecond, Mode_Race::actRaceFocusThird, Mode_Race::actRotateCamera, *Mode_Race::actSetGlobalGravity});
+            client.sendRegisterActions({ Mode_Race::actRaceFocusFirst, Mode_Race::actRaceFocusSecond, Mode_Race::actRaceFocusThird, Mode_Race::actRotateCamera, *Mode_Race::actSetGlobalGravity, *Mode_Race::actSetMarbleMass });
         else
-            client.sendUnregisterActions({ "race_focus_first_place", "race_focus_second_place", "race_focus_third_place", "rotate_cam", "set_global_gravity"});
+            client.sendUnregisterActions({ "race_focus_first_place", "race_focus_second_place", "race_focus_third_place", "rotate_cam", "set_global_gravity", "set_marble_mass"});
         break;
 
     case STAGE_Race_Game_At_Results:

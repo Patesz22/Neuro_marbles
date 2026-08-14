@@ -13,7 +13,7 @@ todo
 * ~~increase the frequency of neuro getting context on alive/dead/finished players (without context flooding)~~ **improvements needed**
 * add modifier actions
   * ~~I've seen a SetGravity function eg.~~
-  * SetMassInKgs - inside class AMarble : public AMOSPawn 
+  * ~~SetMassInKgs~~
   * Investigate UCheatManager class
   * GodMode
   * BoostMarble

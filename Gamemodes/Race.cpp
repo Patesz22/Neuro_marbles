@@ -234,6 +234,48 @@ namespace Mode_Race
 
                 state.NeuroDidAction = false;
             }
+            else if (state.LastNeuroAction.compare("set_marble_mass") == 0)
+            {
+                try
+                {
+                    nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+                    if (parsedData.is_string()) parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+
+                    std::string requestedUsername = parsedData["username"].get<std::string>();
+                    double requestedAmount = parsedData["amount"].get<double>();
+
+                    SDK::AMarble* TargetMarble = FindMarble(requestedUsername);
+
+                    if (TargetMarble)
+                    {
+                        float startingMass = 1.0f; // Fallback
+                        if (TargetMarble->PrimitiveRootComponent)
+                        {
+                            startingMass = TargetMarble->PrimitiveRootComponent->GetMass();
+                        }
+
+                        TargetMarble->SetMassInKgs(static_cast<float>(requestedAmount));
+                        printf("[Neuro] Set %s's mass to %.2f\n", requestedUsername.c_str(), requestedAmount);
+
+                        // Add to the list with a fixed 30-second duration!
+                        state.ActiveMassModifiers.push_back({
+                            TargetMarble,
+                            startingMass,
+                            std::chrono::steady_clock::now() + std::chrono::seconds(30)
+                            });
+                    }
+                    else
+                    {
+                        printf("[Neuro] Could not find marble for user: %s\n", requestedUsername.c_str());
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    printf("[DEBUG] JSON Parse Error in set_marble_mass execution: %s\n", e.what());
+                }
+
+                state.NeuroDidAction = false;
+            }
             else if (state.LastNeuroAction.compare("rotate_cam") == 0)
             {
                 TurnCamera();
@@ -301,6 +343,26 @@ namespace Mode_Race
                 state.IsGravityModified = false;
 
                 printf("[Neuro] Gravity duration expired. Reset to normal (%.2f)\n", state.OriginalGravityZ);
+            }
+        }
+
+        for (auto it = state.ActiveMassModifiers.begin(); it != state.ActiveMassModifiers.end(); )
+        {
+            if (std::chrono::steady_clock::now() >= it->ResetTime)
+            {
+                int32_t d; float df;
+                if (it->MarblePtr && SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
+                {
+                    // CRITICAL FIX: Restore the exact original mass we saved earlier!
+                    it->MarblePtr->SetMassInKgs(it->OriginalMass);
+                    printf("[Neuro] Marble mass duration expired. Reset to original (%.2f)\n", it->OriginalMass);
+                }
+
+                it = state.ActiveMassModifiers.erase(it);
+            }
+            else
+            {
+                ++it;
             }
         }
         

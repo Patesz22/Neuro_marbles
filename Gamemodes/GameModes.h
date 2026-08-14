@@ -32,6 +32,7 @@ namespace Mode_Race
 
     extern NeuroWebsocketpp::Action* actRaceGetJoinedPlayers;
     extern NeuroWebsocketpp::Action* actSetGlobalGravity;
+    extern NeuroWebsocketpp::Action* actSetMarbleMass;
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
     void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);

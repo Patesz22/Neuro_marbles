@@ -287,6 +287,68 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
             bSuccess = false;
         }
     }
+    else if (actionName == "set_marble_mass" && state.CurrentState == STAGE_Race_Game_Started)
+    {
+        bool correct = false;
+        std::string requestedUsername = "";
+        double requestedAmount = 0.0;
+
+        if (!state.lastData.empty())
+        {
+            try
+            {
+                nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+                if (parsedData.is_string()) 
+                    parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+
+                if (parsedData.is_object() &&
+                    parsedData.contains("username") && parsedData["username"].is_string() &&
+                    parsedData.contains("amount") && parsedData["amount"].is_number())
+                {
+                    requestedUsername = parsedData["username"].get<std::string>();
+                    requestedAmount = parsedData["amount"].get<double>();
+
+                    long long currentTime = GetCurrentTimeMs();
+                    long long cooldownExpiry = 0;
+
+                    if (GetGlobalCooldowns().contains("mass_cooldown"))
+                    {
+                        cooldownExpiry = GetGlobalCooldowns()["mass_cooldown"].get<long long>();
+                    }
+
+                    if (currentTime < cooldownExpiry)
+                    {
+                        int remainingSeconds = (cooldownExpiry - currentTime) / 1000;
+                        resp = "I can't do that right now! The mass command is on cooldown for another " + std::to_string(remainingSeconds) + " seconds.";
+                        bSuccess = false;
+                    }
+                    else
+                    {
+                        correct = true;
+                    }
+                }
+            }
+            catch (const std::exception& e)
+            {
+                printf("[DEBUG] JSON Parse Error: %s\n", e.what());
+            }
+        }
+
+        if (correct)
+        {
+            // fixed 15s cooldown!
+            long long currentTime = GetCurrentTimeMs();
+            GetGlobalCooldowns()["mass_cooldown"] = currentTime + (15 * 1000);
+
+            resp = "Attempting to change the mass for " + requestedUsername + "!";
+            bSuccess = true;
+        }
+        else
+        {
+            resp = "The data format is incorrect. Please provide a string 'username' and numeric 'amount'.";
+            bSuccess = false;
+        }
+    }
     else if (actionName == "result_exit_race_menu" && state.CurrentState == STAGE_Race_Game_At_Results)
     {
         resp = "I have exited to the main menu.";

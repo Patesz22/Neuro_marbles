@@ -4,6 +4,7 @@ namespace Mode_Race
 {
     NeuroWebsocketpp::Action* actRaceGetJoinedPlayers = nullptr;
     NeuroWebsocketpp::Action* actSetGlobalGravity = nullptr;
+    NeuroWebsocketpp::Action* actSetMarbleMass = nullptr;
 
     void InitComplexActions()
     {
@@ -55,6 +56,32 @@ namespace Mode_Race
                         },
                         "required": ["amount", "duration"]
                     }
+                )")
+            );
+        }
+
+        if (!actSetMarbleMass)
+        {
+            actSetMarbleMass = new NeuroWebsocketpp::Action(
+                "set_marble_mass",
+                "Changes the weight of a specific viewer's marble.",
+                nlohmann::json::parse(R"(
+                {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "description": "The exact Twitch username of the player."
+                        },
+                        "amount": {
+                            "type": "number",
+                            "description": "The new mass. 37.88 is default. >37.88 is heavy, <37.88 is light.",
+                            "minimum": 1,
+                            "maximum": 80.0
+                        }
+                    },
+                    "required": ["username", "amount"]
+                }
                 )")
             );
         }

@@ -45,7 +45,10 @@ namespace Mode_Race
 
     bool AutoScrollRaceResults(int searchTick);
     std::string GetJoinedPlayers(int amount);
+    SDK::AMarble* FindMarble(const std::string& targetUsername);
 
     float ApplyGravity(float newGravity);
+
+
 
 }
