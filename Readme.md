@@ -12,14 +12,14 @@ todo
 * ~~send context on what's happening in game, so neuro can sort of "commentate"~~ **improvements needed**
 * ~~increase the frequency of neuro getting context on alive/dead/finished players (without context flooding)~~ **improvements needed**
 * add modifier actions
-  * I've seen a SetGravity function eg. (GetGlobalGravity();)
+  * ~~I've seen a SetGravity function eg.~~
   * SetMassInKgs - inside class AMarble : public AMOSPawn 
   * Investigate UCheatManager class
   * GodMode
   * BoostMarble
   * DestroyMarble
 
-* action for kicking player(s) + send neuro context on joined players
+* action for kicking player(s) + ~~send neuro context on joined players (action)~~
 * increase the lobby size
   * there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
   * maybe ask the devs to allow us to use lobbies with more players
@@ -27,4 +27,4 @@ todo
 * ~~Add console and file logging~~
 
 broken after 5.8.1 update:
-GetMaxPlayers
+~~GetMaxPlayers~~ fixed
