@@ -160,13 +160,12 @@ namespace Mode_Menu
             }
         }
 
-        // 2. Find the Data Asset (Scan FORWARDS because Data Assets are persistent, not Transient)
+        // Find the Data Asset (Scan FORWARDS because Data Assets are persistent, not Transient)
         for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             if (!Obj || Obj->IsDefaultObject()) continue;
 
-            // Note the class change: We are looking for UMOS... not UW_...
             if (Obj->IsA(SDK::UMOSUserFacingExperienceDescription::StaticClass()))
             {
                 std::string objName = Obj->GetName();
@@ -181,7 +180,7 @@ namespace Mode_Menu
             }
         }
 
-        // 3. Fire the Native Engine Event!
+        // Native Engine Event!
         if (TargetData && SelectorMenu)
         {
             printf(">> [STAGE 2] Firing the literal UI Mouse-Click Event! <<\n");
@@ -244,8 +243,6 @@ namespace Mode_Menu
             for (int i = 0; i < randomChurn; i++)
             {
                 // Advance the game's global random seed silently
-                // NOTE: If your Dumper-7 generated this as a static function, 
-                // you may need to change this line to: SDK::UKismetMathLibrary::RandomFloat();
                 MathLib->RandomFloat();
             }
         }
@@ -265,7 +262,7 @@ namespace Mode_Menu
     {
         SDK::UW_RaceUserFacingExperience_C* ActiveRaceMenu = nullptr;
 
-        // 1. Sweep BACKWARDS to find the ACTIVE Race Menu widget
+        // Sweep BACKWARDS to find the ACTIVE Race Menu widget
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -273,10 +270,10 @@ namespace Mode_Menu
             int32_t d; float df;
             if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
 
-            // 2. Use the safe StaticClass() check to find the Race Menu
+            // Use the safe StaticClass() check to find the Race Menu
             if (!Obj->IsDefaultObject() && Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()))
             {
-                // CRITICAL: Ensure it's in the Transient package (meaning it is actively on screen)
+                // Ensure it's in the Transient package (meaning it is actively on screen)
                 if (Obj->GetFullName().find("Transient") != std::string::npos)
                 {
                     ActiveRaceMenu = static_cast<SDK::UW_RaceUserFacingExperience_C*>(Obj);
@@ -285,7 +282,7 @@ namespace Mode_Menu
             }
         }
 
-        // 3. Call the built-in SDK function!
+        // Call the built-in SDK function!
         if (ActiveRaceMenu)
         {
             // This natively executes the logic the game developers wrote 

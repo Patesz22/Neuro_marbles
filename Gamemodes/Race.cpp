@@ -401,7 +401,7 @@ namespace Mode_Race
                 int32_t d; float df;
                 if (it->MarblePtr && SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
                 {
-                    // CRITICAL FIX: Restore the exact original mass we saved earlier!
+                    // Restore the exact original mass we saved earlier!
                     it->MarblePtr->SetMassInKgs(it->OriginalMass);
                     printf("[Neuro] Marble mass duration expired. Reset to original (%.2f)\n", it->OriginalMass);
                 }
@@ -584,25 +584,6 @@ namespace Mode_Race
                 AutoScrollRaceResults(searchTick);
                 break;
             }
-
-
-        /*if (searchTick % 3000 == 0)
-        {
-            switch (state.CurrentState)
-            {
-            case STAGE_Race_Map_Select:
-                client.sendContext("We need to pick a track to race on. Use your randomize map action!", false);
-                break;
-            case STAGE_Race_Lobby_Start:
-                client.sendContext("The track has been selected. Please start the lobby so chat can join!", false);
-                break;
-            case STAGE_Race_Game_Joining:
-                client.sendContext("The lobby is open. Don't forget to join the game yourself using your action!", false);
-                break;
-            case STAGE_Race_Game_At_Results:
-                break;
-            }
-        }*/
         
     }
 

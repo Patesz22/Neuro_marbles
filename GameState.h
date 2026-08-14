@@ -41,6 +41,7 @@ namespace SDK
 {
     class AMarble;
 }
+
 // Holds our current state so both the Main Thread and the WebSocket thread can see it
 class MarblesGameState
 {

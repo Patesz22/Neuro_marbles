@@ -1,6 +1,6 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
-#define _CRT_SECURE_NO_WARNINGS // NeuroGameSdkWebsocketpp.hpp(175,20): error C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+#define _CRT_SECURE_NO_WARNINGS // error C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
 
 #include <winsock2.h>
 #include <cstdio>

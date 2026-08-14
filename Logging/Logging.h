@@ -17,7 +17,7 @@ private:
     static std::mutex logMutex;
     static std::streambuf* originalCoutBuffer;
 
-    // Custom stream buffer that writes to both the console AND our file
+    // Custom stream buffer that writes to both the console and file
     class DualStreamBuf : public std::streambuf
     {
     public:

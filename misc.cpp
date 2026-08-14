@@ -14,11 +14,11 @@ void PressKey(char key)
     {
         UINT scanCode = MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
 
-        // 2. Construct the exact 32-bit lParam that Unreal Engine requires
+        // Construct the exact 32-bit lParam that Unreal Engine requires
         LPARAM lParamDown = 1 | (scanCode << 16);
         LPARAM lParamUp = 1 | (scanCode << 16) | (1 << 30) | (1 << 31);
 
-        // 3. Send the formatted messages
+        // Send the formatted messages
         PostMessage(gameWindow, WM_KEYDOWN, (WPARAM)key, lParamDown);
         Sleep(50); // Important: Give UE's tick rate time to process the Down state
         PostMessage(gameWindow, WM_KEYUP, (WPARAM)key, lParamUp);
