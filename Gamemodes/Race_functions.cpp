@@ -4,7 +4,7 @@
 namespace Mode_Race
 {
     volatile bool bShouldClickStart = false;
-    volatile bool bClickAcknowledged = false;
+    volatile bool ClickAcknowledged = false;
     volatile bool bMatchIDIntercepted = false;
     bool bIsMenuHooked = false;
     bool bIsHeartbeatHooked = false;
@@ -47,7 +47,7 @@ namespace Mode_Race
 
                     printf("[Neuro] Engine Heartbeat Triggered! Injecting Blueprint...\n");
                     OriginalProcessEvent(RaceMenu, BlueprintClickEvent, &Params);
-                    bClickAcknowledged = true;
+                    ClickAcknowledged = true;
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace Mode_Race
 
         printf(">> [STAGE 4] Flag raised. Heartbeat will process click instantly...\n");
         bShouldClickStart = true;
-        bClickAcknowledged = false;
+        ClickAcknowledged = false;
 
         return true;
     }
@@ -775,97 +775,88 @@ namespace Mode_Race
         return "";
     }
 
-
     std::string GetJoinedPlayers(int amount)
     {
-        if (amount <= 0) 
-            return "Invalid amount requested.";
+        if (amount <= 0) return "Invalid amount requested.";
+        if (amount > 1000) amount = 1000;
 
-        if (amount > 1000) 
-            amount = 1000; // Cap
+        SDK::AMOSGameState* ActiveGameState = nullptr;
 
-        std::vector<std::string> joinedPlayers;
-
-        // Scan memory for spawned marbles
+        // 1. Find the active Game State (Much faster than finding thousands of marbles)
         for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
-
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
-            if (Obj->IsDefaultObject()) continue;
+            if (!Obj) continue;
 
-            // Ghost Object Filter
-            std::string objName = Obj->GetName();
-            if (objName.find("TRASH") != std::string::npos ||
-                objName.find("Default__") != std::string::npos ||
-                objName.find("REINST") != std::string::npos)
+            if (!Obj->IsDefaultObject() && Obj->IsA(SDK::AMOSGameState::StaticClass()))
             {
-                continue;
-            }
-
-            // If it is a Marble, grab the name!
-            if (Obj->IsA(SDK::AMarble::StaticClass()))
-            {
-                SDK::AMarble* Marble = static_cast<SDK::AMarble*>(Obj);
-                std::string cleanName = "";
-
-                // ATTEMPT A: Read from the APlayerState
-                if (Marble->PlayerState)
-                {
-                    SDK::FString fName = Marble->PlayerState->GetPlayerName();
-                    std::wstring wName = fName.ToWString();
-                    for (wchar_t c : wName)
-                    {
-                        if (c >= 32 && c <= 126) 
-                            cleanName += static_cast<char>(c);
-                    }
-                }
-
-                // ATTEMPT B: Fallback to _Username
-                if (cleanName.empty() && Marble->_Username.IsValid())
-                {
-                    std::wstring wName = Marble->_Username.ToWString();
-                    for (wchar_t c : wName)
-                    {
-                        if (c >= 32 && c <= 126) 
-                            cleanName += static_cast<char>(c);
-                    }
-                }
-
-                // If we found a valid name, add it to our list
-                if (!cleanName.empty())
-                {
-                    joinedPlayers.push_back(cleanName);
-
-                    // Stop searching once we hit the amount Neuro asked for
-                    if (joinedPlayers.size() >= amount)
-                    {
-                        break;
-                    }
-                }
+                ActiveGameState = static_cast<SDK::AMOSGameState*>(Obj);
+                break; // Found it! Stop searching.
             }
         }
 
-        // Format the vector into a single, comma-separated string
-        if (joinedPlayers.empty())
-        {
-            return "No players have joined the lobby yet.";
-        }
+        if (!ActiveGameState) return "Could not find active game state.";
+
+        // 2. Grab the developers' native array of viewers!
+        SDK::TArray<SDK::AMOSPlayerState*> ViewersArray = ActiveGameState->GetViewers();
+
+        if (ViewersArray.Num() == 0) return "No players have joined the lobby yet.";
 
         std::string result = "";
-        for (size_t i = 0; i < joinedPlayers.size(); ++i)
+        int limit = amount < ViewersArray.Num() ? amount : ViewersArray.Num();
+
+        // 3. Iterate through their array
+        for (int i = 0; i < limit; ++i)
         {
-            result += joinedPlayers[i];
-            if (i < joinedPlayers.size() - 1)
+            SDK::AMOSPlayerState* PlayerState = ViewersArray[i];
+            if (!PlayerState) continue;
+
+            // Extract and sanitize the name
+            std::string cleanName = "";
+            SDK::FString ueName = PlayerState->GetPlayerName(); // Assuming standard APlayerState inherited function
+            std::wstring wName = ueName.ToWString();
+
+            for (wchar_t c : wName)
             {
-                result += ", ";
+                if (c >= 32 && c <= 126) cleanName += static_cast<char>(c);
+            }
+
+            if (!cleanName.empty())
+            {
+                result += cleanName;
+                if (i < limit - 1) result += ", ";
             }
         }
 
-
         return result;
+    }
+
+    float ApplyGravity(float newGravity)
+    {
+        float oldGravity = -3920.0f; // fallback
+
+        for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
+        {
+            SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+
+            int32_t d; float df;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+
+            // Target the WorldSettings class where GlobalGravityZ lives
+            if (!Obj->IsDefaultObject() && Obj->IsA(SDK::AWorldSettings::StaticClass()))
+            {
+                SDK::AWorldSettings* WorldSettings = static_cast<SDK::AWorldSettings*>(Obj);
+
+                // Grab the original gravity before overwriting (only if we haven't already modified it)
+                oldGravity = WorldSettings->GlobalGravityZ;
+
+                // Apply new gravity
+                WorldSettings->GlobalGravityZ = newGravity;
+                WorldSettings->bGlobalGravitySet = true;
+            }
+        }
+
+        return oldGravity;
     }
 
 }

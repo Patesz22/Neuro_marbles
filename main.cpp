@@ -26,7 +26,6 @@ bool IsRoyaleState(ENeuroState state)
 DWORD WINAPI MainThread(LPVOID lpReserved)
 {
     Sleep(5000);
-
     AllocConsole();
     FILE* fDummy;
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
@@ -37,10 +36,14 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     printf("     MARBLES ON STREAM - NEURO BOT\n");
     printf("==========================================\n");
 
+    std::cout << "Connecting to websocket..." << std::endl;
+    Mode_Race::InitComplexActions();
     MarblesGameState gameState{};
     NeuroMarbles client("ws://localhost:8000", GameName, gameState, &std::cout, &std::cerr);
 
     client.sendStartup();
+
+    std::cout << "Websocket connection successful!" << std::endl;
 
     bool bWasNumpad1Pressed = false;
     bool bWasLeftClicked = false;
@@ -72,7 +75,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
         if (bBotActive)
         {
 
-            if (gameState.bNeuroDidAction)
+            if (gameState.NeuroDidAction)
             {
                 // Route Actions
                 if (IsMenuState(gameState.CurrentState)) 
@@ -108,6 +111,8 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     }
 
     printf("Ejecting...\n");
+
+    Mode_Race::FreeComplexActions();
     Logger::Shutdown();
     fclose(fDummy);
     FreeConsole();

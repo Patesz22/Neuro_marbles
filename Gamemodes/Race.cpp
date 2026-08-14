@@ -32,22 +32,6 @@ namespace Mode_Race
     NeuroWebsocketpp::Action actRaceStartLobby("race_start_lobby", "Start the lobby so players can join!", empty_schema);
     NeuroWebsocketpp::Action actRaceJoinGame("race_join_game", "Spawn your own marble into the race!", empty_schema);
     NeuroWebsocketpp::Action actRaceStartGame("race_start_game", "Start the game on the current map, but WAIT until the lobby is full!", empty_schema);
-    NeuroWebsocketpp::Action actRaceGetJoinedPlayers("get_joined_players", "Returns the specified amount of currently joined players. Input range is 1-1000, single integer.", 
-        nlohmann::json::parse(R"(
-    {
-        "type": "object",
-        "properties": {
-            "amount": {
-                "type": "integer",
-                "description": "The number of players to fetch. Input range is 1-1000.",
-                "minimum": 1,
-                "maximum": 1000
-            }
-        },
-        "required": ["amount"]
-    }
-    )")
-    );
 
     NeuroWebsocketpp::Action actRaceFocusFirst("race_focus_first_place", "Focus the first place player in view", empty_schema);
     NeuroWebsocketpp::Action actRaceFocusSecond("race_focus_second_place", "Focus the second place player in view", empty_schema);
@@ -55,6 +39,7 @@ namespace Mode_Race
     NeuroWebsocketpp::Action actRotateCamera("rotate_cam", "Rotate the camera so chat can see", empty_schema);
     NeuroWebsocketpp::Action actResultMainMenu("result_exit_race_menu", "Exit to main menu after seeing the results.", empty_schema);
     NeuroWebsocketpp::Action actResultNextRandomMap("result_next_random_map", "Start the next map, randomly", empty_schema);
+
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state)
     {
@@ -69,7 +54,7 @@ namespace Mode_Race
                 RegisterAnAction(EActionRegistry::Register, lastState, state.CurrentState, client);
                 Sleep(1500);
             }
-            state.bNeuroDidAction = false;
+            state.NeuroDidAction = false;
         }
 
         switch (state.CurrentState)
@@ -79,7 +64,7 @@ namespace Mode_Race
             {
                 printf("[Neuro] STAGE 3: Map selected.\n");
                 state.CurrentState = STAGE_Race_Lobby_Start;
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
                 Sleep(1000);
             }
             break;
@@ -91,9 +76,9 @@ namespace Mode_Race
             if (StartRaceMatch())
             {
                 printf("[Neuro] STAGE 4: Start initiated! Entering match...\n");
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
 
-                while (!bClickAcknowledged) 
+                while (!ClickAcknowledged) 
                 { Sleep(100); }
 
                 printf("Blueprint Injected! Waiting for map to load...\n");
@@ -117,7 +102,7 @@ namespace Mode_Race
             {
                 printf("[Neuro] STAGE 5: Neuro joined the game!\n");
                 state.CurrentState = STAGE_Race_Game_Waiting;
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
                 sentFinished1st = false;
                 currentObservedLeader = L"";
                 previousLeader = L"";
@@ -133,37 +118,45 @@ namespace Mode_Race
                 if (PressInGameButton("StartButton"))
                 {
                     state.CurrentState = STAGE_Race_Game_Started;
-                    state.bNeuroDidAction = false;
+                    state.NeuroDidAction = false;
                 }
             }
             else if (state.LastNeuroAction.compare("get_joined_players") == 0)
             {
-                int requestedAmount = 10;
+                int requestedAmount = 10; // Default fallback
 
-                try
+                if (!state.lastData.empty())
                 {
-                    // 1. Parse the JSON-stringified data sent by Neuro
-                    // (Assuming state.ActionData is a std::string containing the payload)
-                    nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
-
-                    // 2. Extract the amount she chose
-                    if (parsedData.contains("amount") && parsedData["amount"].is_number_integer())
+                    try
                     {
-                        requestedAmount = parsedData["amount"].get<int>();
+                        nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+
+                        if (parsedData.is_string())
+                        {
+                            parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+                        }
+
+                        // Safely verify the key exists before extracting
+                        if (parsedData.is_object() && parsedData.contains("amount") && parsedData["amount"].is_number_integer())
+                        {
+                            requestedAmount = parsedData["amount"].get<int>();
+                        }
+                    }
+                    catch (const std::exception& e)
+                    {
+                        printf("[DEBUG] JSON Parse Error in get_joined_players: %s\n", e.what());
                     }
                 }
-                catch (const nlohmann::json::parse_error& e)
-                {
-                    printf("[Neuro] Failed to parse action data: %s\n", e.what());
-                }
+
                 std::string playersList = GetJoinedPlayers(requestedAmount);
+
                 printf("[Neuro] Fetched %d joined players: %s\n", requestedAmount, playersList.c_str());
                 std::string tmp = "Joined players: ";
                 tmp.append(playersList);
                 client.sendContext(tmp, false);
                 tmp.clear();
 
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
             }
             break;
 
@@ -185,7 +178,7 @@ namespace Mode_Race
                 client.sendContext(tmp, false);
                 tmp.clear();
 
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
             }
             else if (state.LastNeuroAction.compare("race_focus_second_place") == 0)
             {
@@ -195,7 +188,7 @@ namespace Mode_Race
                 client.sendContext(tmp, false);
                 tmp.clear();
 
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
             }
             else if (state.LastNeuroAction.compare("race_focus_third_place") == 0)
             {
@@ -205,12 +198,46 @@ namespace Mode_Race
                 client.sendContext(tmp, false);
                 tmp.clear();
 
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
+            }
+            else if (state.LastNeuroAction.compare("set_global_gravity") == 0)
+            {
+                try
+                {
+                    nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+
+                    if (parsedData.is_string())
+                    {
+                        parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+                    }
+
+                    double requestedAmount = parsedData["amount"].get<double>();
+                    int requestedDuration = parsedData["duration"].get<int>();
+
+                    float previousGravity = ApplyGravity(static_cast<float>(requestedAmount));
+
+                    // Only overwrite OriginalGravityZ if we aren't ALREADY overriding it
+                    if (!state.IsGravityModified)
+                    {
+                        state.OriginalGravityZ = previousGravity;
+                    }
+
+                    state.IsGravityModified = true;
+
+                    // Set the timer so the game knows when to turn it off!
+                    state.GravityResetTime = std::chrono::steady_clock::now() + std::chrono::seconds(requestedDuration);
+                }
+                catch (const std::exception& e)
+                {
+                    printf("[DEBUG] JSON Parse Error in race.cpp: %s\n", e.what());
+                }
+
+                state.NeuroDidAction = false;
             }
             else if (state.LastNeuroAction.compare("rotate_cam") == 0)
             {
                 TurnCamera();
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
             }
             break;
 
@@ -226,14 +253,14 @@ namespace Mode_Race
                 {
                     state.CurrentState = STAGE_Race_Map_Select;
                 }
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
                 Sleep(1500);
             }
             else if (state.LastNeuroAction.compare("result_next_random_map") == 0)
             {
                 if (ClickNextRandomTrack()) 
                 {
-                    state.bNeuroDidAction = false;
+                    state.NeuroDidAction = false;
                 }
                 state.CurrentState = STAGE_Race_Game_Joining;
             }
@@ -262,6 +289,18 @@ namespace Mode_Race
             {
                 client.sendContext("The lobby is full! Please start the map!", false);
                 lobbyFull = true;
+            }
+        }
+
+        if (state.IsGravityModified)
+        {
+            // Check if the duration has expired
+            if (std::chrono::steady_clock::now() >= state.GravityResetTime)
+            {
+                ApplyGravity(state.OriginalGravityZ);
+                state.IsGravityModified = false;
+
+                printf("[Neuro] Gravity duration expired. Reset to normal (%.2f)\n", state.OriginalGravityZ);
             }
         }
         

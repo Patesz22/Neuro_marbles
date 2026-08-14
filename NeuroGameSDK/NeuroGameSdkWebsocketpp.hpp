@@ -143,8 +143,6 @@ namespace NeuroWebsocketpp {
     }
 
 
-
-
     // Type definitions
     using websocketpp::connection_hdl;
     using client = websocketpp::client<websocketpp::config::asio_client>;

@@ -55,23 +55,14 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
         }
     }
 
-    // Validate the Schema based on Action Name
     try
     {
         actionName = response.getName();
-
-        if (actionName == "example_complex_action")
-        {
-            if (!parsed_data.is_object() || !parsed_data.contains("target_id") || !parsed_data["target_id"].is_string())
-            {
-                throw std::invalid_argument("Missing or invalid parameter: 'target_id' (expected string).");
-            }
-        }
     }
     catch (const std::exception& e)
     {
         std::string resp = std::string("JSON validation failed: ") + e.what();
-        std::cerr << resp << std::endl;
+        std::cout << resp << std::endl;
         sendActionResult(response, false, resp);
         return;
     }
@@ -86,15 +77,13 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
     }
 
     // Check if her action matches the stage we are currently in
+    std::cout << "State: " << state.CurrentState << std::endl;
     if (actionName == "click_welcome_continue" && state.CurrentState == STAGE_Welcome_Continue)
     {
         resp = "We are continuing to the main menu!";
         bSuccess = true;
     }
-
-    
-
-    if (actionName == "menu_go_back")
+    else if (actionName == "menu_go_back" && (state.CurrentState == STAGE_Race_Map_Select || state.CurrentState == STAGE_Race_Lobby_Start))
     {
         resp = "Returning to the gamemode selection screen!";
         bSuccess = true;
@@ -153,7 +142,7 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
                 {
                     requestedAmount = parsedData["amount"].get<int>();
 
-                    // 2. Validate bounds manually (1 to 1000)
+                    // Validate bounds
                     if (requestedAmount >= 1 && requestedAmount <= 1000)
                     {
                         correct = true;
@@ -213,6 +202,91 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
         resp = "Rotating the cam so chat can see better.";
         bSuccess = true;
     }
+    else if (actionName == "set_global_gravity" && state.CurrentState == STAGE_Race_Game_Started)
+    {
+        bool correct = false;
+        double requestedAmount = 0.0;
+        int requestedDuration = 0;
+        bool onCooldown = false;
+
+        if (!state.lastData.empty())
+        {
+            try
+            {
+                nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+
+                if (parsedData.is_string())
+                {
+                    parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+                }
+
+                if (parsedData.is_object() &&
+                    parsedData.contains("amount") && parsedData["amount"].is_number() &&
+                    parsedData.contains("duration") && parsedData["duration"].is_number_integer())
+                {
+                    requestedAmount = parsedData["amount"].get<double>();
+                    requestedDuration = parsedData["duration"].get<int>();
+
+                    // Validate bounds
+                    if (requestedAmount >= -1500.0 && requestedAmount <= 100.0 && requestedDuration >= 1 && requestedDuration <= 5)
+                    {
+                        long long currentTime = GetCurrentTimeMs();
+                        long long cooldownExpiry = 0;
+
+                        if (GetGlobalCooldowns().contains("gravity_cooldown"))
+                        {
+                            cooldownExpiry = GetGlobalCooldowns()["gravity_cooldown"].get<long long>();
+                        }
+
+                        if (currentTime < cooldownExpiry)
+                        {
+                            int remainingSeconds = (cooldownExpiry - currentTime) / 1000;
+                            bSuccess = false;
+                            onCooldown = true;
+                        }
+                        else
+                        {
+                            correct = true; // Validation passed, not on cooldown!
+                            onCooldown = false;
+                        }
+                    }
+                    else
+                    {
+                        printf("[DEBUG] Amount or duration out of bounds: %f, %d\n", requestedAmount, requestedDuration);
+                    }
+                }
+                else
+                {
+                    printf("[DEBUG] JSON is missing 'amount' or 'duration', or they are the wrong types.\n");
+                }
+            }
+            catch (const std::exception& e)
+            {
+                printf("[DEBUG] JSON Parse Error: %s\n", e.what());
+            }
+        }
+
+        if (correct)
+        {
+            long long currentTime = GetCurrentTimeMs();
+            long long newCooldownExpiry = currentTime + (requestedDuration * 1000) + (60 * 1000); //+ 60s cooldown
+            GetGlobalCooldowns()["gravity_cooldown"] = newCooldownExpiry;
+
+            resp = "Global gravity has been altered successfully!";
+            bSuccess = true;
+            onCooldown = false;
+        }
+        else if (!correct && onCooldown)
+        {
+            resp = "I can't do that right now! The gravity command is on cooldown!";
+            bSuccess = false;
+        }
+        else
+        {
+            resp = "The data format is incorrect, please try again!";
+            bSuccess = false;
+        }
+    }
     else if (actionName == "result_exit_race_menu" && state.CurrentState == STAGE_Race_Game_At_Results)
     {
         resp = "I have exited to the main menu.";
@@ -232,7 +306,7 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
     if (bSuccess)
     {
         state.LastNeuroAction = actionName;
-        state.bNeuroDidAction = true;
+        state.NeuroDidAction = true;
     }
 
     // Send the API response back to Neuro

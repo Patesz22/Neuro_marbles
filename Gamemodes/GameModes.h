@@ -23,13 +23,15 @@ namespace Mode_Race
     extern NeuroWebsocketpp::Action actRaceStartLobby;
     extern NeuroWebsocketpp::Action actRaceJoinGame;
     extern NeuroWebsocketpp::Action actRaceStartGame;
-    extern NeuroWebsocketpp::Action actRaceGetJoinedPlayers;
     extern NeuroWebsocketpp::Action actRaceFocusFirst;
     extern NeuroWebsocketpp::Action actRaceFocusSecond;
     extern NeuroWebsocketpp::Action actRaceFocusThird;
     extern NeuroWebsocketpp::Action actRotateCamera;
     extern NeuroWebsocketpp::Action actResultMainMenu;
     extern NeuroWebsocketpp::Action actResultNextRandomMap;
+
+    extern NeuroWebsocketpp::Action* actRaceGetJoinedPlayers;
+    extern NeuroWebsocketpp::Action* actSetGlobalGravity;
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
     void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);

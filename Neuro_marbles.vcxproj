@@ -132,7 +132,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Actions.cpp" />
+    <ClCompile Include="Actions\Actions.cpp" />
+    <ClCompile Include="Actions\Actions_Complex.cpp" />
     <ClCompile Include="Gamemodes\Menu_functions.cpp" />
     <ClCompile Include="Gamemodes\Race_functions.cpp" />
     <ClCompile Include="Gamemodes\Royale.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="SDK\W_UserFacingExperienceSelector_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actions\Actions_Complex.h" />
     <ClInclude Include="Gamemodes\GameModes.h" />
     <ClInclude Include="Gamemodes\Menu.h" />
     <ClInclude Include="Gamemodes\Race.h" />

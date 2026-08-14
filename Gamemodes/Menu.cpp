@@ -26,7 +26,7 @@ namespace Mode_Menu
                     state.CurrentState = STAGE_Gamemode_Select;
                     Sleep(1000);
                 }
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
             }
             break;
 
@@ -39,7 +39,7 @@ namespace Mode_Menu
                     state.CurrentState = STAGE_Race_Map_Select;
                     Sleep(1000);
                 }
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
                 
             }
             /*
@@ -47,7 +47,7 @@ namespace Mode_Menu
             {
                 printf("[Neuro] STAGE 2: Royale mode selected.\n");
                 state.CurrentState = STAGE_Royale_Map_Select;
-                state.bNeuroDidAction = false;
+                state.NeuroDidAction = false;
                 Sleep(1000);
             }
             */

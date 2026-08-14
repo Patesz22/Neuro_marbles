@@ -7,7 +7,7 @@ extern bool SafeCopyMemory(void* destination, void* source, size_t size);
 namespace Mode_Race
 {
     extern volatile bool bShouldClickStart;
-    extern volatile bool bClickAcknowledged;
+    extern volatile bool ClickAcknowledged;
     extern volatile bool bMatchIDIntercepted;
     extern bool bIsMenuHooked;
     extern bool bIsHeartbeatHooked;
@@ -45,5 +45,7 @@ namespace Mode_Race
 
     bool AutoScrollRaceResults(int searchTick);
     std::string GetJoinedPlayers(int amount);
+
+    float ApplyGravity(float newGravity);
 
 }

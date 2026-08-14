@@ -84,10 +84,13 @@
     <ClCompile Include="Gamemodes\Menu_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Actions.cpp">
+    <ClCompile Include="Actions\Actions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Logging\Logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Actions_Complex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -120,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Logging\Logging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions\Actions_Complex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
