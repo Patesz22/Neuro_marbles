@@ -14,7 +14,7 @@ void RegisterAStage(EActionRegistry operation, ENeuroState targetStage, NeuroMar
 
     case STAGE_Gamemode_Select:
         if (operation == EActionRegistry::Register)
-            client.sendRegisterActions({ Mode_Menu::actSelectRace }); // other gamemodes here
+            client.sendRegisterActions({ Mode_Menu::actSelectRace }); // other gamemodes's actions here
         else
             client.sendUnregisterActions({ "select_race_mode" });
         break;

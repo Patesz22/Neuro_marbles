@@ -34,5 +34,5 @@ private:
     static DualStreamBuf* customBuf;
 };
 
-// This macro magically replaces all standard 'printf' calls with our Logger's Printf
+// This macro magically replaces all standard 'printf' calls with Logger Printf
 #define printf Logger::Printf

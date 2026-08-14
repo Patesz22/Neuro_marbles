@@ -1,6 +1,17 @@
 #include "../main.h"
 #include "Menu.h"
 
+    /* Indexes for gamemode selection
+    0: Race
+    1: Grand Prix
+    2: Royale
+    3: Tilted
+    4: Marble Up
+    5: Bloop
+    6: Build
+    7: Dust
+    */
+
 namespace Mode_Menu 
 {
 
@@ -19,7 +30,7 @@ namespace Mode_Menu
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             if (!Obj || Obj->IsDefaultObject()) continue;
 
-            // 1. Handle Default Menu Buttons
+            // Handle Default Menu Buttons
             if (Obj->IsA(SDK::UW_MOSButton_Default_C::StaticClass()))
             {
                 std::string fullName = Obj->GetFullName();
@@ -55,7 +66,7 @@ namespace Mode_Menu
                     return true;
                 }
             }
-            // 2. Handle Small Menu Buttons
+            // Handle Small Menu Buttons
             else if (Obj->IsA(SDK::UW_MOSButton_Small_C::StaticClass()))
             {
                 std::string fullName = Obj->GetFullName();
@@ -65,9 +76,6 @@ namespace Mode_Menu
                 {
                     SDK::UW_MOSButton_Small_C* SmallBtn = static_cast<SDK::UW_MOSButton_Small_C*>(Obj);
 
-                    // ==========================================
-                    // THE FIX: Do not click hidden/collapsed buttons!
-                    // ==========================================
                     if (!SmallBtn->IsVisible())
                     {
                         printf(">> [DEBUG] Ignored hidden button: %s <<\n", fullName.c_str());
@@ -89,7 +97,6 @@ namespace Mode_Menu
                         SmallBtn->HandleButtonReleased();
                     }
 
-                    // We found the real one and clicked it. Stop looking!
                     return true;
                 }
             }
@@ -128,26 +135,15 @@ namespace Mode_Menu
             }
         }
         
-        return false; // If we get here, no visible button was found
+        return false; // no visible button was found
     }
 
-    /* Indexes for gamemode selection
-    0: Race
-    1: Grand Prix
-    2: Royale
-    3: Tilted
-    4: Marble Up
-    5: Bloop
-    6: Build
-    7: Dust
-    */
 
     bool SelectExperienceCard(const std::string& targetModeName)
     {
         SDK::UMOSUserFacingExperienceDescription* TargetData = nullptr;
         SDK::UW_UserFacingExperienceSelector_C* SelectorMenu = nullptr;
 
-        // 1. Find the Selector Menu (Scan BACKWARDS for the active Transient UI)
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);

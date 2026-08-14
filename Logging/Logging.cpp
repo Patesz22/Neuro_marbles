@@ -48,10 +48,10 @@ int Logger::DualStreamBuf::sync()
 // --- Logger Core Implementation ---
 void Logger::Init()
 {
-    // 1. Create logs directory if it doesn't exist
+    // Create logs directory if it doesn't exist
     std::filesystem::create_directory("logs");
 
-    // 2. Generate Timestamp (e.g., 2026-07-21_18-30-23)
+    // Generate Timestamp (e.g., 2026-07-21_18-30-23)
     auto now = std::chrono::system_clock::now();
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
     std::tm timeInfo;
@@ -60,10 +60,9 @@ void Logger::Init()
     std::stringstream filename;
     filename << "logs/Log_" << std::put_time(&timeInfo, "%Y-%m-%d_%H-%M-%S") << ".txt";
 
-    // 3. Open the file
     logFile.open(filename.str(), std::ios::out | std::ios::app);
 
-    // 4. Hijack std::cout globally
+    // 4. Hijack std::cout
     if (logFile.is_open())
     {
         originalCoutBuffer = std::cout.rdbuf();
@@ -95,7 +94,7 @@ void Logger::Shutdown()
     }
 }
 
-// Our custom printf wrapper
+// custom printf wrapper
 void Logger::Printf(const char* format, ...)
 {
     // Process the varargs

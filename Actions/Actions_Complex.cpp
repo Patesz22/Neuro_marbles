@@ -9,7 +9,6 @@ namespace Mode_Race
 
     void InitComplexActions()
     {
-        // Initialize get_joined_players
         if (!actRaceGetJoinedPlayers)
         {
             actRaceGetJoinedPlayers = new NeuroWebsocketpp::Action(
@@ -32,7 +31,6 @@ namespace Mode_Race
             );
         }
 
-        // Initialize set_global_gravity
         if (!actSetGlobalGravity)
         {
             actSetGlobalGravity = new NeuroWebsocketpp::Action(
@@ -120,6 +118,18 @@ namespace Mode_Race
         {
             delete actSetGlobalGravity;
             actSetGlobalGravity = nullptr;
+        }
+
+        if (actSetMarbleMass)
+        {
+            delete actSetMarbleMass;
+            actSetMarbleMass = nullptr;
+        }
+
+        if (actKickPlayer)
+        {
+            delete actKickPlayer;
+            actKickPlayer = nullptr;
         }
     }
 };

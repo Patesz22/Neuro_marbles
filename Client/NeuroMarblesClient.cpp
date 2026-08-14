@@ -3,7 +3,7 @@
 #include "Gamemodes/GameModes.h"
 #include "Gamemodes/Race.h"
 
-// Constructor implementation
+// Ctor implementation
 NeuroMarbles::NeuroMarbles(const std::string& uri, const std::string& game_name, MarblesGameState& gameState,
     std::ostream* output_stream, std::ostream* error_stream)
     : NeuroGameClient(uri, game_name, output_stream, error_stream), state(gameState)
@@ -76,8 +76,9 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
         printf("%s\n", state.LastNeuroAction.data());
     }
 
+    //std::cout << "State: " << state.CurrentState << std::endl;
+
     // Check if her action matches the stage we are currently in
-    std::cout << "State: " << state.CurrentState << std::endl;
     if (actionName == "click_welcome_continue" && state.CurrentState == STAGE_Welcome_Continue)
     {
         resp = "We are continuing to the main menu!";
@@ -226,7 +227,6 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
 
         if (correct)
         {
-            // 1-second cooldown
             long long currentTime = GetCurrentTimeMs();
             GetGlobalCooldowns()["kick_cooldown"] = currentTime + (1 * 1000);
 
@@ -284,7 +284,6 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
                     requestedAmount = parsedData["amount"].get<double>();
                     requestedDuration = parsedData["duration"].get<int>();
 
-                    // Validate bounds
                     if (requestedAmount >= -1500.0 && requestedAmount <= 100.0 && requestedDuration >= 1 && requestedDuration <= 5)
                     {
                         long long currentTime = GetCurrentTimeMs();
@@ -393,7 +392,7 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
 
         if (correct)
         {
-            // fixed 15s cooldown!
+            // 15s cooldown
             long long currentTime = GetCurrentTimeMs();
             GetGlobalCooldowns()["mass_cooldown"] = currentTime + (15 * 1000);
 

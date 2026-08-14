@@ -167,9 +167,6 @@ namespace Mode_Race
 
                     bClickedAtLeastOne = true;
 
-                    // DO NOT RETURN HERE! 
-                    // We keep looping to ensure we hit EVERY version of this button in memory.
-                    // The dead ones will fail silently, the live one will trigger the game.
                 }
             }
         }
@@ -504,7 +501,7 @@ namespace Mode_Race
         std::vector<RaceResult> liveResults;
         SDK::UTopRacePositionsWidgetY2* TopPositionsHUD = nullptr;
 
-        // 1. Find the Live Race HUD
+        // Find the Live Race HUD
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -527,7 +524,7 @@ namespace Mode_Race
             return liveResults;
         }
 
-        // 2. Extract from the Vertical Box
+        // Extract from the Vertical Box
         // UVerticalBox inherits from UPanelWidget, which contains the children array.
         int childCount = TopPositionsHUD->PositionsPanel->GetChildrenCount();
         int fetchCount = (maxPlayersToFetch < childCount) ? maxPlayersToFetch : childCount;
@@ -547,11 +544,11 @@ namespace Mode_Race
 
             if (Entry->PlayerNameTextBlock)
             {
-                // 1. Get the raw FText from the UI element
+                // Get the raw FText from the UI element
                 // (UCommonTextBlock inherits GetText() from UTextBlock)
                 SDK::FText rawFText = Entry->PlayerNameTextBlock->GetText();
 
-                // 2. Convert FText to FString safely via the Engine's Kismet Library
+                // Convert FText to FString safely via the Engine's Kismet Library
                 SDK::FString stringName = SDK::UKismetTextLibrary::Conv_TextToString(rawFText);
 
                 result.PlayerName = stringName.ToWString();
@@ -572,7 +569,7 @@ namespace Mode_Race
     {
         SDK::URaceResultsWidgetY2* resultsWidget = nullptr;
 
-        // 1. Find the Live Results HUD
+        // Find the Live Results HUD
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -605,7 +602,7 @@ namespace Mode_Race
 
                 currentItemIndex++;
 
-                // Optional: Loop back to the top when it reaches the bottom
+                // Loop back to the top when it reaches the bottom
                 if (currentItemIndex >= totalItems)
                 {
                     currentItemIndex = 0;
@@ -620,16 +617,16 @@ namespace Mode_Race
 
     std::string GetFirstPlaceFinishedPlayer()
     {
-        // 1. Get the GameMode
+        // Get the GameMode
         SDK::AMarbleRaceGameMode* GameMode = GetMarbleGameMode(); // Uses your helper from earlier
         if (!GameMode) return "";
 
-        // 2. Ask the Engine for the finished marble at position 1
+        // Ask the Engine for the finished marble at position 1
         SDK::AMarble* FirstPlaceMarble = GameMode->FindMarbleAtPosition(1);
 
         if (FirstPlaceMarble)
         {
-            // 3. ATTEMPT A: Read from the persistent APlayerState (Safest)
+            // Read from the persistent APlayerState (Safest)
             if (FirstPlaceMarble->PlayerState)
             {
                 SDK::FString fName = FirstPlaceMarble->PlayerState->GetPlayerName();
@@ -647,7 +644,7 @@ namespace Mode_Race
                 }
             }
 
-            // 4. ATTEMPT B: Fallback to the raw internal _Username variable
+            // Fallback to the raw internal _Username variable
             if (FirstPlaceMarble->_Username.IsValid())
             {
                 std::wstring wName = FirstPlaceMarble->_Username.ToWString();
@@ -732,17 +729,15 @@ namespace Mode_Race
             {
                 SDK::APlayerController* PC = static_cast<SDK::APlayerController*>(Obj);
 
-                // 1. Ask the Engine which Actor the camera is currently attached to!
+                // Ask the Engine which Actor the camera is currently attached to!
                 SDK::AActor* ViewTarget = PC->GetViewTarget();
 
                 if (ViewTarget && ViewTarget->IsA(SDK::AMarble::StaticClass()))
                 {
                     SDK::AMarble* SpectatedMarble = static_cast<SDK::AMarble*>(ViewTarget);
 
-                    // 2. Prioritize reading from the APlayerState class you just dumped!
                     if (SpectatedMarble->PlayerState)
                     {
-                        // Convert the engine string using Dumper-7's wrapper
                         SDK::FString fName = SpectatedMarble->PlayerState->GetPlayerName();
                         std::wstring wName = fName.ToWString();
                         std::string cleanName = "";
@@ -755,7 +750,7 @@ namespace Mode_Race
                         if (!cleanName.empty()) return cleanName;
                     }
 
-                    // 3. Fallback: If PlayerState is missing, check the internal _Username we found earlier
+                    // Fallback: If PlayerState is missing, check the internal _Username we found earlier
                     if (SpectatedMarble->_Username.IsValid())
                     {
                         std::wstring wName = SpectatedMarble->_Username.ToWString();
@@ -782,7 +777,7 @@ namespace Mode_Race
 
         SDK::AMOSGameState* ActiveGameState = nullptr;
 
-        // 1. Find the active Game State (Much faster than finding thousands of marbles)
+        // Find the active Game State
         for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -797,7 +792,7 @@ namespace Mode_Race
 
         if (!ActiveGameState) return "Could not find active game state.";
 
-        // 2. Grab the developers' native array of viewers!
+        // Grab the native array of viewers!
         SDK::TArray<SDK::AMOSPlayerState*> ViewersArray = ActiveGameState->GetViewers();
 
         if (ViewersArray.Num() == 0) return "No players have joined the lobby yet.";
@@ -805,7 +800,7 @@ namespace Mode_Race
         std::string result = "";
         int limit = amount < ViewersArray.Num() ? amount : ViewersArray.Num();
 
-        // 3. Iterate through their array
+        // Iterate through their array
         for (int i = 0; i < limit; ++i)
         {
             SDK::AMOSPlayerState* PlayerState = ViewersArray[i];

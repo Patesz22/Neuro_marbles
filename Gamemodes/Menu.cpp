@@ -76,18 +76,6 @@ namespace Mode_Menu
             lastState = state.CurrentState;
         }
 
-        /*if (searchTick % 1500 == 0)
-        {
-            switch (state.CurrentState)
-            {
-            case STAGE_Welcome_Continue:
-                client.sendContext("We are waiting on the title screen. Can you click continue?", false);
-                break;
-            case STAGE_Gamemode_Select:
-                client.sendContext("We need to pick a game mode. Please use your action to select a gamemode!", false);
-                break;
-            }
-        }*/
     }
 
 }
