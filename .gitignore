@@ -42,3 +42,4 @@ Assertions.inl
 /x64
 NameCollisions.inl
 SDK.hpp
+UtfN.hpp
