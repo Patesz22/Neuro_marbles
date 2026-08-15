@@ -1,4 +1,4 @@
-# Neuro Marbles On Stream game integration using <u>[neuro-sdk](https://github.com/VedalAI/neuro-sdk)</u> and <u>[neuro-sdk-c++](https://github.com/chris-pie/neuro-sdk-websocketpp)</u>
+# Neuro Marbles On Stream game integration based on <u>[neuro-sdk](https://github.com/VedalAI/neuro-sdk)</u> with <u>[neuro-sdk-c++](https://github.com/chris-pie/neuro-sdk-websocketpp)</u>
 
 ## Features
 - todo
