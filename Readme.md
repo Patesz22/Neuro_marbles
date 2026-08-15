@@ -35,5 +35,4 @@ LogDirectory = ./logs
 GravityCooldown = 60
 MassCooldown = 15
 KickCooldown = 1
-
 ```
