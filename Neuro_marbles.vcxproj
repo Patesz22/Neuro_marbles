@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="Actions\Actions.cpp" />
     <ClCompile Include="Actions\Actions_Complex.cpp" />
+    <ClCompile Include="Config\NeuroConfig.cpp" />
     <ClCompile Include="Gamemodes\Menu_functions.cpp" />
     <ClCompile Include="Gamemodes\Race_functions.cpp" />
     <ClCompile Include="Gamemodes\Royale.cpp" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actions\Actions_Complex.h" />
+    <ClInclude Include="Config\NeuroConfig.h" />
     <ClInclude Include="Gamemodes\GameModes.h" />
     <ClInclude Include="Gamemodes\Menu.h" />
     <ClInclude Include="Gamemodes\Race.h" />

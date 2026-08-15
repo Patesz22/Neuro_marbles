@@ -1,4 +1,5 @@
 #include "Logging.h"
+#include "Config/NeuroConfig.h"
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -57,8 +58,15 @@ void Logger::Init()
     std::tm timeInfo;
     localtime_s(&timeInfo, &now_c); // Use localtime_s for thread safety on Windows
 
+    std::string logDir = GetConfigString("LogDirectory", "logs/");
+
+    if (!logDir.empty() && logDir.back() != '/' && logDir.back() != '\\')
+    {
+        logDir += "/";
+    }
+
     std::stringstream filename;
-    filename << "logs/Log_" << std::put_time(&timeInfo, "%Y-%m-%d_%H-%M-%S") << ".txt";
+    filename << logDir << "Log_" << std::put_time(&timeInfo, "%Y-%m-%d_%H-%M-%S") << ".txt";
 
     logFile.open(filename.str(), std::ios::out | std::ios::app);
 

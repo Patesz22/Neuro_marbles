@@ -10,6 +10,7 @@
 
 #include "json/json.hpp"
 #include "Logging/Logging.h"
+#include "Config/NeuroConfig.h"
 
 namespace NeuroWebsocketpp {
     enum Priority {
@@ -199,11 +200,31 @@ namespace NeuroWebsocketpp {
             if (shutting_down) {
                 return;
             }
-            std::string finalUri = !uri.empty()
-                ? uri
-                : std::getenv("NEURO_SDK_WS_URL") ? std::getenv("NEURO_SDK_WS_URL") : "";
+            std::string finalUri;
+            const char* env_url = std::getenv("NEURO_SDK_WS_URL");
+
+            // ==========================================
+            // Custom code
+            
+            // Check if the environment variable exists and is not empty
+            if (env_url != nullptr && std::string(env_url) != "")
+            {
+                finalUri = std::string(env_url);
+                std::cout << "[DEBUG] Connecting via Environment Variable: " << finalUri << std::endl;
+            }
+            // Fall back to the config file
+            else
+            {
+                std::string wsIP = GetConfigString("WebSocketIP", "127.0.0.1");
+                int wsPort = GetConfigInt("WebSocketPort", 8000);
+
+                finalUri = "ws://" + wsIP + ":" + std::to_string(wsPort);
+                std::cout << "[DEBUG] Connecting via Config File: " << finalUri << std::endl;
+            }
+            // ==========================================
 
             connection_thread = std::thread(&NeuroGameClient::connect, this, finalUri);
+
             if (timeout >= 0) {
                 bool success = condition.wait_for(lock, std::chrono::seconds(timeout), [this]() { return connected || connection_failed || _failed_reconnecting || shutting_down; });
                 if (!success || connection_failed) {

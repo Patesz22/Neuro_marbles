@@ -30,6 +30,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
     FILE* fDummy;
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
 
+    LoadConfig();
     Logger::Init();
 
     printf("==========================================\n");
