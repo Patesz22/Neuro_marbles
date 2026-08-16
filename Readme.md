@@ -50,6 +50,8 @@ This project requires a C++ compiler compatible with C++17 or higher.
 ---
 ## Acknowledgements
 
+* **[neuro-sdk](https://github.com/VedalAI/neuro-sdk) by Vedal987**
+* **[neuro-sdk-websocketpp](https://github.com/chris-pie/neuro-sdk-websocketpp) by chris-pie**
 * **[WebSocket++](https://github.com/zaphoyd/websocketpp) by zaphoyd**
 * **[nlohmann/json](https://github.com/nlohmann/json) by nlohmann**
 * **[Dumper-7](https://github.com/Encryqed/Dumper-7) by Encryqed** 
