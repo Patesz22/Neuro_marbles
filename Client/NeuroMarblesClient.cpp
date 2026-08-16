@@ -199,6 +199,14 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
                 {
                     requestedUsername = parsedData["username"].get<std::string>();
 
+                    if (requestedUsername.compare("vedal987") == 0) // add neuro's / evil's acc
+                    {
+                        resp = "You can't kick yourself!";
+                        bSuccess = false;
+                        std::cout << "Trying to kick myself!" << std::endl;
+                        throw "Can't kick!";
+                    }
+
                     long long currentTime = GetCurrentTimeMs();
                     long long cooldownExpiry = 0;
 
