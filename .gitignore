@@ -43,3 +43,4 @@ Assertions.inl
 NameCollisions.inl
 SDK.hpp
 UtfN.hpp
+/websocketpp
