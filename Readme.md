@@ -13,9 +13,9 @@
    - **or** *Right click the game -> Properties -> Installed Files -> Browse*
 5. In the opened folder navigate to *MarblesOnStream/Binaries/Win64/*
    - Create a **scripts** folder and a **config.txt** here
-   - Download **dxgi.dll** from [Ultimate-ASI-Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader) and put it beside the two newly created folders
+   - Download **dxgi.dll** from [Ultimate-ASI-Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader) and put it beside the two newly created folder and txt
    - Navigate to the **scripts** folder and put the downloaded mod .asi file there
-6. Paste the config template into your **config.txt** and modify it to your needs <br>
+6. Paste the config template into your **config.txt** and modify it to your needs <u>(names and values are case sensitive)</u><br>
 ```
 # ============================================
 # Marbles on Stream mod configuration
