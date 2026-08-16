@@ -44,3 +44,4 @@ NameCollisions.inl
 SDK.hpp
 UtfN.hpp
 /websocketpp
+/json
