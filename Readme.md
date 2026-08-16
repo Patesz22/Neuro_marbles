@@ -18,7 +18,7 @@
 6. Paste the config template into your **config.txt** and modify it to your needs <u>(names and values are case sensitive)</u><br>
 ```
 # ============================================
-# Marbles on Stream mod configuration
+# Nuero Marbles on Stream mod configuration
 # ============================================
 
 # WebSocket Connection Settings
