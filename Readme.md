@@ -36,3 +36,25 @@ GravityCooldown = 60
 MassCooldown = 15
 KickCooldown = 1
 ```
+---
+
+## Building from Source
+
+This project requires a C++ compiler compatible with C++17 or higher.
+
+1. Clone the repository.
+2. Ensure your build environment is configured for the target architecture (x64).
+3. Link the necessary dependencies (see Acknowledgements).
+4. Build the executable.
+
+---
+## Acknowledgements
+
+* **[WebSocket++](https://github.com/zaphoyd/websocketpp) by zaphoyd**
+* **[nlohmann/json](https://github.com/nlohmann/json) by nlohmann**
+* **[Dumper-7](https://github.com/Encryqed/Dumper-7) by Encryqed** 
+
+---
+## License
+
+[MIT License](LICENSE)
