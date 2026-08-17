@@ -6,6 +6,7 @@ namespace Mode_Race
     NeuroWebsocketpp::Action* actSetGlobalGravity = nullptr;
     NeuroWebsocketpp::Action* actSetMarbleMass = nullptr;
     NeuroWebsocketpp::Action* actKickPlayer = nullptr;
+    NeuroWebsocketpp::Action* actSetMarbleSize = nullptr;
 
     void InitComplexActions()
     {
@@ -35,7 +36,7 @@ namespace Mode_Race
         {
             actSetGlobalGravity = new NeuroWebsocketpp::Action(
                 "set_global_gravity",
-                "Changes the global race gravity for the specified duration.",
+                "Changes the global race gravity for the specified duration. Default gravity is -3920. Use positive numbers to make marbles float up! Minimum is -5500, maximum is 50. Duration is between 1-5 sec. The cooldown is 60s.",
                 nlohmann::json::parse(R"(
                     {
                         "type": "object",
@@ -63,7 +64,7 @@ namespace Mode_Race
         {
             actSetMarbleMass = new NeuroWebsocketpp::Action(
                 "set_marble_mass",
-                "Changes the weight of a specific viewer's marble.",
+                "Changes the weight of a specific viewer's marble. The mass 37.88 is default. >37.88 is heavy, <37.88 is light.",
                 nlohmann::json::parse(R"(
                 {
                     "type": "object",
@@ -104,6 +105,32 @@ namespace Mode_Race
                 )")
             );
         }
+
+        if (!actSetMarbleSize)
+        {
+            actSetMarbleSize = new NeuroWebsocketpp::Action(
+                "set_marble_size",
+                "Changes the physical size of a specific viewer's marble. The multiplier: 1.0 is normal. 2.0 is double size, 0.5 is half size.",
+                nlohmann::json::parse(R"(
+                {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "description": "The exact Twitch username of the player."
+                        },
+                        "amount": {
+                            "type": "number",
+                            "description": "The new size multiplier. 1.0 is normal. 2.0 is double size, 0.5 is half size.",
+                            "minimum": 0.1,
+                            "maximum": 5.0
+                        }
+                    },
+                    "required": ["username", "amount"]
+                }
+                )")
+            );
+        }
     }
 
     void FreeComplexActions()
@@ -130,6 +157,12 @@ namespace Mode_Race
         {
             delete actKickPlayer;
             actKickPlayer = nullptr;
+        }
+
+        if (actSetMarbleSize)
+        {
+            delete actSetMarbleSize;
+            actSetMarbleSize = nullptr;
         }
     }
 };

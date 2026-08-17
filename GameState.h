@@ -21,9 +21,9 @@ extern bool bBotActive;
 extern std::wstring ActiveMatchID;
 extern std::string GameName;
 
-extern volatile bool bShouldClickStart;
+extern volatile bool ShouldClickStart;
 extern volatile bool ClickAcknowledged;
-extern volatile bool bMatchIDIntercepted;
+extern volatile bool MatchIDIntercepted;
 
 inline nlohmann::json& GetGlobalCooldowns()
 {
@@ -54,6 +54,7 @@ public:
     float OriginalGravityZ = -980.0f; // Default Unreal gravity
     std::chrono::time_point<std::chrono::steady_clock> GravityResetTime;
 
+    //Mass action
     struct ActiveMassModifier
     {
         SDK::AMarble* MarblePtr;
@@ -61,6 +62,15 @@ public:
         std::chrono::time_point<std::chrono::steady_clock> ResetTime;
     };
     std::vector<ActiveMassModifier> ActiveMassModifiers;
+
+    // Size action
+    struct ActiveSizeModifier
+    {
+        SDK::AMarble* MarblePtr;
+        float OriginalScale;
+        std::chrono::time_point<std::chrono::steady_clock> ResetTime;
+    };
+    std::vector<ActiveSizeModifier> ActiveSizeModifiers;
 
     std::string LastNeuroAction = "";
     std::string ActiveCharacterId;

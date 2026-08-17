@@ -3,9 +3,9 @@
 
 namespace Mode_Race
 {
-    volatile bool bShouldClickStart = false;
+    volatile bool ShouldClickStart = false;
     volatile bool ClickAcknowledged = false;
-    volatile bool bMatchIDIntercepted = false;
+    volatile bool MatchIDIntercepted = false;
     bool bIsMenuHooked = false;
     bool bIsHeartbeatHooked = false;
 
@@ -14,9 +14,9 @@ namespace Mode_Race
 
     void __fastcall Hooked_ProcessEvent(const SDK::UObject* pThis, SDK::UFunction* Function, void* Parms)
     {
-        if (bShouldClickStart)
+        if (ShouldClickStart)
         {
-            bShouldClickStart = false;
+            ShouldClickStart = false;
 
             SDK::UW_RaceUserFacingExperience_C* RaceMenu = nullptr;
             for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
@@ -118,7 +118,7 @@ namespace Mode_Race
         }
 
         printf(">> [STAGE 4] Flag raised. Heartbeat will process click instantly...\n");
-        bShouldClickStart = true;
+        ShouldClickStart = true;
         ClickAcknowledged = false;
 
         return true;

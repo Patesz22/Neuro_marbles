@@ -227,9 +227,9 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
                     }
                 }
             }
-            catch (const std::exception& e)
+            catch (...)
             {
-                printf("[DEBUG] JSON Parse Error: %s\n", e.what());
+                printf("[DEBUG] JSON Parse Error: \n");
             }
         }
 
@@ -324,9 +324,9 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
                     printf("[DEBUG] JSON is missing 'amount' or 'duration', or they are the wrong types.\n");
                 }
             }
-            catch (const std::exception& e)
+            catch (...)
             {
-                printf("[DEBUG] JSON Parse Error: %s\n", e.what());
+                printf("[DEBUG] JSON Parse Error: \n");
             }
         }
 
@@ -392,9 +392,9 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
                     }
                 }
             }
-            catch (const std::exception& e)
+            catch (...)
             {
-                printf("[DEBUG] JSON Parse Error: %s\n", e.what());
+                printf("[DEBUG] JSON Parse Error: \n");
             }
         }
 
@@ -413,6 +413,46 @@ void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response
             bSuccess = false;
         }
     }
+    else if (actionName == "set_marble_size" && state.CurrentState == STAGE_Race_Game_Started)
+    {
+        bool correct = false;
+        std::string requestedUsername = "";
+
+        if (!state.lastData.empty())
+        {
+            try
+            {
+                nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+                if (parsedData.is_string()) parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+
+                if (parsedData.is_object() && parsedData.contains("username") && parsedData.contains("amount"))
+                {
+                    requestedUsername = parsedData["username"].get<std::string>();
+                    long long currentTime = GetCurrentTimeMs();
+                    long long cooldownExpiry = GetGlobalCooldowns().contains("size_cooldown") ? GetGlobalCooldowns()["size_cooldown"].get<long long>() : 0;
+
+                    if (currentTime < cooldownExpiry)
+                    {
+                        resp = "Size command is on cooldown for another " + std::to_string((cooldownExpiry - currentTime) / 1000) + " seconds.";
+                        bSuccess = false;
+                    }
+                    else correct = true;
+                }
+            }
+            catch (...) 
+            {
+                printf("[DEBUG] JSON Parse Error: \n");
+            }
+        }
+
+        if (correct)
+        {
+            int cd = GetConfigInt("SizeCooldown", 15);
+            GetGlobalCooldowns()["size_cooldown"] = GetCurrentTimeMs() + (cd * 1000);
+            resp = "Changing size for " + requestedUsername;
+            bSuccess = true;
+        }
+}
     else if (actionName == "result_exit_race_menu" && state.CurrentState == STAGE_Race_Game_At_Results)
     {
         resp = "I have exited to the main menu.";

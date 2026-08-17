@@ -6,9 +6,9 @@ extern bool SafeCopyMemory(void* destination, void* source, size_t size);
 
 namespace Mode_Race
 {
-    extern volatile bool bShouldClickStart;
+    extern volatile bool ShouldClickStart;
     extern volatile bool ClickAcknowledged;
-    extern volatile bool bMatchIDIntercepted;
+    extern volatile bool MatchIDIntercepted;
     extern bool bIsMenuHooked;
     extern bool bIsHeartbeatHooked;
 

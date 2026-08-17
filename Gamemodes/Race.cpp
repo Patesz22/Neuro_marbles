@@ -1,6 +1,6 @@
 #pragma once
 #include "GameModes.h"
-#include "../main.h"
+#include "main.h"
 #include "Menu.h"
 #include "Race.h"
 #include "misc.h"
@@ -324,6 +324,48 @@ namespace Mode_Race
 
                 state.NeuroDidAction = false;
             }
+            else if (state.LastNeuroAction.compare("set_marble_size") == 0)
+            {
+                try
+                {
+                    nlohmann::json parsedData = nlohmann::json::parse(state.lastData);
+                    if (parsedData.is_string()) parsedData = nlohmann::json::parse(parsedData.get<std::string>());
+
+                    std::string requestedUsername = parsedData["username"].get<std::string>();
+                    double requestedAmount = parsedData["amount"].get<double>();
+
+                    SDK::AMarble* TargetMarble = FindMarble(requestedUsername);
+
+                    if (TargetMarble)
+                    {
+                        // Build the FVector for uniform scaling
+                        SDK::FVector newScale;
+                        newScale.X = static_cast<float>(requestedAmount);
+                        newScale.Y = static_cast<float>(requestedAmount);
+                        newScale.Z = static_cast<float>(requestedAmount);
+
+                        TargetMarble->SetActorScale3D(newScale);
+                        printf("[Neuro] Set %s's size to %.2f\n", requestedUsername.c_str(), requestedAmount);
+
+                        // 1.0f is default scale, set for a 30-second duration
+                        state.ActiveSizeModifiers.push_back(MarblesGameState::ActiveSizeModifier{
+                            TargetMarble,
+                            1.0f,
+                            std::chrono::steady_clock::now() + std::chrono::seconds(30)
+                            });
+                    }
+                    else
+                    {
+                        printf("[Neuro] Could not find marble for user: %s\n", requestedUsername.c_str());
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    printf("[DEBUG] JSON Parse Error in set_marble_size execution: %s\n", e.what());
+                }
+
+                state.NeuroDidAction = false;
+                }
             else if (state.LastNeuroAction.compare("rotate_cam") == 0)
             {
                 TurnCamera();
@@ -356,6 +398,13 @@ namespace Mode_Race
             }
             break;
         }
+
+        // State Machine Cleanup
+        if (!state.NeuroDidAction)
+        {
+            state.LastNeuroAction = "";
+            state.lastData = "";
+        }
     }
 
     void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick)
@@ -382,6 +431,10 @@ namespace Mode_Race
             }
         }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//          Checking cooldowns
+// 
+
         if (state.IsGravityModified)
         {
             // Check if the duration has expired
@@ -390,7 +443,7 @@ namespace Mode_Race
                 ApplyGravity(state.OriginalGravityZ);
                 state.IsGravityModified = false;
 
-                printf("[Neuro] Gravity duration expired. Reset to normal (%.2f)\n", state.OriginalGravityZ);
+                std::cout << "[Neuro] Gravity duration expired. Reset to normal" << state.OriginalGravityZ << std::endl;
             }
         }
 
@@ -403,7 +456,7 @@ namespace Mode_Race
                 {
                     // Restore the exact original mass we saved earlier!
                     it->MarblePtr->SetMassInKgs(it->OriginalMass);
-                    printf("[Neuro] Marble mass duration expired. Reset to original (%.2f)\n", it->OriginalMass);
+                    std::cout << "[Neuro] Marble mass duration expired. Reset to original" << it->OriginalMass << std::endl;
                 }
 
                 it = state.ActiveMassModifiers.erase(it);
@@ -413,7 +466,36 @@ namespace Mode_Race
                 ++it;
             }
         }
-        
+
+        for (auto it = state.ActiveSizeModifiers.begin(); it != state.ActiveSizeModifiers.end(); )
+        {
+            if (std::chrono::steady_clock::now() >= it->ResetTime)
+            {
+                int32_t d; float df;
+                // Validate the pointer is still alive before touching it
+                if (it->MarblePtr && SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
+                {
+                    SDK::FVector normalScale;
+                    normalScale.X = it->OriginalScale;
+                    normalScale.Y = it->OriginalScale;
+                    normalScale.Z = it->OriginalScale;
+
+                    it->MarblePtr->SetActorScale3D(normalScale);
+                    std::cout << "[Neuro] Marble size duration expired. Reset to original" << it->OriginalScale << std::endl;
+                }
+
+                it = state.ActiveSizeModifiers.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+//
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         if (state.CurrentState != lastState)
         {
             RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
