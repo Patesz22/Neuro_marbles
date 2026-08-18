@@ -23,7 +23,9 @@ namespace Mode_Race
             {
                 SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
                 int32_t d; float df;
-                if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+
+                if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                    continue;
 
                 if (Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()) && !Obj->IsDefaultObject())
                 {
@@ -45,7 +47,7 @@ namespace Mode_Race
                     FClickParams Params;
                     Params.Button = RaceMenu->StartButton;
 
-                    printf("[Neuro] Engine Heartbeat Triggered! Injecting Blueprint...\n");
+                    printf("[Action Function]: Hooked_ProcessEvent injecting blueprint...\n");
                     OriginalProcessEvent(RaceMenu, BlueprintClickEvent, &Params);
                     ClickAcknowledged = true;
                 }
@@ -68,7 +70,8 @@ namespace Mode_Race
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) 
+                continue;
 
             if (!RaceMenu && Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()) && !Obj->IsDefaultObject())
             {
@@ -82,12 +85,13 @@ namespace Mode_Race
                 HeartbeatController = static_cast<SDK::APlayerController*>(Obj);
             }
 
-            if (RaceMenu && HeartbeatController) break;
+            if (RaceMenu && HeartbeatController) 
+                break;
         }
 
         if (!RaceMenu || !HeartbeatController)
         {
-            printf(">> [STAGE 4 ERROR] Could not find Menu or PlayerController.\n");
+            printf("[Action Function]: Could not find Menu or PlayerController.\n");
             return false;
         }
 
@@ -102,7 +106,7 @@ namespace Mode_Race
             VirtualProtect(&VTable[SDK::Offsets::ProcessEventIdx], sizeof(void*), oldProtect, &oldProtect);
 
             bIsMenuHooked = true;
-            printf(">> [STAGE 4] VTable Hook successfully installed into Race Menu.\n");
+            printf("[Action Function]: VTable Hook successfully installed into Race Menu.\n");
         }
 
         if (!bIsHeartbeatHooked)
@@ -114,10 +118,9 @@ namespace Mode_Race
             VirtualProtect(&VTable[SDK::Offsets::ProcessEventIdx], sizeof(void*), oldProtect, &oldProtect);
 
             bIsHeartbeatHooked = true;
-            printf(">> [STAGE 4] VTable Hook successfully installed into Player Controller.\n");
+            printf("[Action Function]: VTable Hook successfully installed into Player Controller.\n");
         }
 
-        printf(">> [STAGE 4] Flag raised. Heartbeat will process click instantly...\n");
         ShouldClickStart = true;
         ClickAcknowledged = false;
 
@@ -131,13 +134,17 @@ namespace Mode_Race
 
         for (int i = initialObjectCount - 1; i >= 0; --i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
+            if (i >= SDK::UObject::GObjects->Num())
+                break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
-            if (Obj->IsDefaultObject()) continue;
+
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             // Skip garbage collected items
             std::string objName = Obj->GetName();
@@ -158,7 +165,7 @@ namespace Mode_Race
                 {
                     SDK::UW_MOSButton_Small_C* JoinBtn = static_cast<SDK::UW_MOSButton_Small_C*>(Obj);
 
-                    printf(">> [STAGE 5] Forcing click on: %s\n", fullName.c_str());
+                    printf("[Action Function]: Forcing click on: %s\n", fullName.c_str());
 
                     // Click it!
                     JoinBtn->HandleButtonPressed();
@@ -177,7 +184,10 @@ namespace Mode_Race
     int GetRaceTotalPlayerCount()
     {
         SDK::UWorld* World = SDK::UWorld::GetWorld();
-        if (!World) return 0;
+
+        if (!World) 
+            return 0;
+
         SDK::AGameModeBase* CurrentGameMode = World->AuthorityGameMode;
         if (CurrentGameMode && CurrentGameMode->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
         {
@@ -189,8 +199,11 @@ namespace Mode_Race
     int GetRaceDeadPlayerCount()
     {
         SDK::UWorld* World = SDK::UWorld::GetWorld();
-        if (!World) return 0;
+        if (!World) 
+            return 0;
+
         SDK::AGameModeBase* CurrentGameMode = World->AuthorityGameMode;
+
         if (CurrentGameMode && CurrentGameMode->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
         {
             return static_cast<SDK::AMarbleRaceGameMode*>(CurrentGameMode)->PlayersEliminated;
@@ -225,13 +238,13 @@ namespace Mode_Race
 
         if (winnerWidget)
         {
-            printf("[Neuro] Forcing game out of 'Awaiting' state and triggering Continue...\n");
+            printf("[Action Function]: Forcing game out of 'Awaiting' state and triggering Continue...\n");
             winnerWidget->SetIsAwaitingMatchResults(false);
             winnerWidget->OnContinueButtonClicked();
         }
         else
         {
-            printf("RaceWinnerWidgetY2 not found in memory.\n");
+            printf("[Action Function]: RaceWinnerWidgetY2 not found in memory.\n");
         }
     }
 
@@ -244,7 +257,8 @@ namespace Mode_Race
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                continue;
 
             if (Obj->IsA(SDK::URaceResultsWidgetY2::StaticClass()) && !Obj->IsDefaultObject())
             {
@@ -258,7 +272,7 @@ namespace Mode_Race
 
         if (!resultsWidget || !resultsWidget->RaceResultsListView)
         {
-            printf("[!] Could not find active Race Results Widget.\n");
+            printf("[Action Function]: Could not find active Race Results Widget.\n");
             return resultsArray;
         }
 
@@ -268,7 +282,8 @@ namespace Mode_Race
         for (int i = 0; i < totalPlayers; i++)
         {
             SDK::UObject* rawItem = listView->ListItems[i];
-            if (!rawItem) continue;
+            if (!rawItem)
+                continue;
 
             uintptr_t baseAddr = reinterpret_cast<uintptr_t>(rawItem);
             int32_t rank = *reinterpret_cast<int32_t*>(baseAddr + 0xC8);
@@ -374,7 +389,7 @@ namespace Mode_Race
 
         if (validCount == 0)
         {
-            return "[!] No results found. Is the race finished?";
+            return "[Action Function]: No results found. Is the race finished?";
         }
 
         return finalResults;
@@ -417,12 +432,17 @@ namespace Mode_Race
         // Scan backwards to find the live HUD
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
+            if (i >= SDK::UObject::GObjects->Num())
+                break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
-            if (Obj->IsDefaultObject()) continue;
+
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             // Ghost Object Filter
             std::string objName = Obj->GetName();
@@ -441,7 +461,7 @@ namespace Mode_Race
                 // Access the HUD's official, verified pointer to the active Race Widget!
                 if (HUD->MarbleRaceWidget)
                 {
-                    printf(">> [STAGE 5] Safely firing Random Track via the HUD! <<\n");
+                    printf("[Action Function]: Safely firing Random Track via the HUD! <<\n");
                     HUD->MarbleRaceWidget->OnRandomTrackButtonClicked();
 
                     // Return immediately so we don't accidentally double-click!
@@ -450,7 +470,7 @@ namespace Mode_Race
             }
         }
 
-        printf("[!] Could not find active HUD or MarbleRaceWidget.\n");
+        printf("[Action Function]: Could not find active HUD or MarbleRaceWidget.\n");
         return false;
     }
 
@@ -459,12 +479,16 @@ namespace Mode_Race
         // Scan backwards to find the live HUD
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
+            if (i >= SDK::UObject::GObjects->Num())
+                break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
-            if (Obj->IsDefaultObject()) continue;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             // Ghost Object Filter
             std::string objName = Obj->GetName();
@@ -483,7 +507,7 @@ namespace Mode_Race
                 // Access the HUD's official, verified pointer to the active Race Widget!
                 if (HUD->MarbleRaceWidget)
                 {
-                    printf(">> [STAGE 5] Safely firing Main Menu via the HUD! <<\n");
+                    printf("[Action Function]: Safely firing Main Menu via the HUD! <<\n");
                     HUD->MarbleRaceWidget->OnMainMenuButtonClicked();
 
                     // Return immediately so we don't accidentally double-click!
@@ -492,7 +516,7 @@ namespace Mode_Race
             }
         }
 
-        printf("[!] Could not find active HUD or MarbleRaceWidget.\n");
+        printf("[Action Function]: Could not find active HUD or MarbleRaceWidget.\n");
         return false;
     }
 
@@ -506,8 +530,12 @@ namespace Mode_Race
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) continue;
-            if (Obj->IsDefaultObject()) continue;
+
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             if (Obj->IsA(SDK::UTopRacePositionsWidgetY2::StaticClass()))
             {
@@ -533,7 +561,8 @@ namespace Mode_Race
         {
             // Get the raw child widget from the UI slot
             SDK::UWidget* rawChild = TopPositionsHUD->PositionsPanel->GetChildAt(i);
-            if (!rawChild || !rawChild->IsA(SDK::UTopRacePositionEntryWidgetY2::StaticClass())) continue;
+            if (!rawChild || !rawChild->IsA(SDK::UTopRacePositionEntryWidgetY2::StaticClass()))
+                continue;
 
             // Cast it to the Entry Widget you dumped
             SDK::UTopRacePositionEntryWidgetY2* Entry = static_cast<SDK::UTopRacePositionEntryWidgetY2*>(rawChild);
@@ -574,8 +603,12 @@ namespace Mode_Race
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
-            if (Obj->IsDefaultObject()) continue;
+
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             if (Obj->IsA(SDK::URaceResultsWidgetY2::StaticClass()))
             {
@@ -671,10 +704,14 @@ namespace Mode_Race
         // Scan backwards for the active GameMode
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
+            if (i >= SDK::UObject::GObjects->Num())
+                break;
+
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                continue;
 
             if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()) && !Obj->IsDefaultObject())
             {
@@ -690,14 +727,18 @@ namespace Mode_Race
         // Scan backwards to find the active GameMode
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
+            if (i >= SDK::UObject::GObjects->Num())
+                break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
 
             // Memory safety check
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
-            if (Obj->IsDefaultObject()) continue;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             // Find the specific Marbles Game Mode
             if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
@@ -718,12 +759,16 @@ namespace Mode_Race
         // Scan memory for the Local Player Controller
         for (int i = SDK::UObject::GObjects->Num() - 1; i >= 0; --i)
         {
-            if (i >= SDK::UObject::GObjects->Num()) break;
+            if (i >= SDK::UObject::GObjects->Num())
+                break;
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
-            if (Obj->IsDefaultObject()) continue;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                continue;
+
+            if (Obj->IsDefaultObject())
+                continue;
 
             if (Obj->IsA(SDK::APlayerController::StaticClass()))
             {
@@ -747,7 +792,8 @@ namespace Mode_Race
                             if (c >= 32 && c <= 126) cleanName += static_cast<char>(c);
                         }
 
-                        if (!cleanName.empty()) return cleanName;
+                        if (!cleanName.empty())
+                            return cleanName;
                     }
 
                     // Fallback: If PlayerState is missing, check the internal _Username we found earlier
@@ -772,7 +818,9 @@ namespace Mode_Race
 
     std::string GetJoinedPlayers(int amount)
     {
-        if (amount <= 0) return "Invalid amount requested.";
+        if (amount <= 0) 
+            return "Invalid amount requested.";
+
         if (amount > 1000) amount = 1000;
 
         SDK::AMOSGameState* ActiveGameState = nullptr;
@@ -781,7 +829,8 @@ namespace Mode_Race
         for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            if (!Obj) continue;
+            if (!Obj)
+                continue;
 
             if (!Obj->IsDefaultObject() && Obj->IsA(SDK::AMOSGameState::StaticClass()))
             {
@@ -790,12 +839,14 @@ namespace Mode_Race
             }
         }
 
-        if (!ActiveGameState) return "Could not find active game state.";
+        if (!ActiveGameState) 
+            return "Could not find active game state.";
 
         // Grab the native array of viewers!
         SDK::TArray<SDK::AMOSPlayerState*> ViewersArray = ActiveGameState->GetViewers();
 
-        if (ViewersArray.Num() == 0) return "No players have joined the lobby yet.";
+        if (ViewersArray.Num() == 0) 
+            return "No players have joined the lobby yet.";
 
         std::string result = "";
         int limit = amount < ViewersArray.Num() ? amount : ViewersArray.Num();
@@ -804,7 +855,8 @@ namespace Mode_Race
         for (int i = 0; i < limit; ++i)
         {
             SDK::AMOSPlayerState* PlayerState = ViewersArray[i];
-            if (!PlayerState) continue;
+            if (!PlayerState)
+                continue;
 
             // Extract and sanitize the name
             std::string cleanName = "";
@@ -835,7 +887,8 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
 
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) 
+                continue;
 
             // Target the WorldSettings class where GlobalGravityZ lives
             if (!Obj->IsDefaultObject() && Obj->IsA(SDK::AWorldSettings::StaticClass()))
@@ -861,7 +914,8 @@ namespace Mode_Race
         for (int i = 0; i < SDK::UObject::GObjects->Num(); ++i)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-            if (!Obj || Obj->IsDefaultObject()) continue;
+            if (!Obj || Obj->IsDefaultObject()) 
+                continue;
 
             if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()))
             {

@@ -23,7 +23,7 @@ void PressKey(char key)
         Sleep(50); // Important: Give UE's tick rate time to process the Down state
         PostMessage(gameWindow, WM_KEYUP, (WPARAM)key, lParamUp);
 
-        printf("[Neuro] Sent UE-Formatted Background Key: %c\n", key);
+        printf("[Action]: Sent UE-Formatted Background Key: %c\n", key);
     }
     else
     {

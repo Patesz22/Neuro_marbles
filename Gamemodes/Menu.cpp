@@ -22,7 +22,7 @@ namespace Mode_Menu
             {
                 if (ClickGenericButton("ContinueButton"))
                 {
-                    printf("[Neuro] Back to Gamemode selection!\n");
+                    printf("[Action]: Back to Gamemode selection!\n");
                     state.CurrentState = STAGE_Gamemode_Select;
                     Sleep(1000);
                 }
@@ -35,7 +35,7 @@ namespace Mode_Menu
             {
                 if (SelectExperienceCard("Race"))
                 {
-                    printf("[Neuro] STAGE 2: Race mode selected.\n");
+                    printf("[Action]: STAGE 2: Race mode selected.\n");
                     state.CurrentState = STAGE_Race_Map_Select;
                     Sleep(1000);
                 }
@@ -45,7 +45,7 @@ namespace Mode_Menu
             /*
             else if (SelectExperienceCard("Royale"))
             {
-                printf("[Neuro] STAGE 2: Royale mode selected.\n");
+                printf("[Action]: STAGE 2: Royale mode selected.\n");
                 state.CurrentState = STAGE_Royale_Map_Select;
                 state.NeuroDidAction = false;
                 Sleep(1000);

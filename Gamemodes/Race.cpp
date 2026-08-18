@@ -47,7 +47,7 @@ namespace Mode_Race
         {
             if (Mode_Menu::ClickGenericButton("BackButton"))
             {
-                printf("[Neuro] STAGE 1: Back button pressed.\n");
+                printf("[Action]: STAGE 1: Back button pressed.\n");
                 lastState = state.CurrentState;
                 state.CurrentState = STAGE_Gamemode_Select;
                 RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
@@ -62,7 +62,7 @@ namespace Mode_Race
         case STAGE_Race_Map_Select:
             if (Mode_Menu::ClickRandomizeButton())
             {
-                printf("[Neuro] STAGE 3: Map selected.\n");
+                printf("[Action]: STAGE 3: Map selected.\n");
                 state.CurrentState = STAGE_Race_Lobby_Start;
                 state.NeuroDidAction = false;
                 Sleep(1000);
@@ -71,17 +71,17 @@ namespace Mode_Race
 
         case STAGE_Race_Lobby_Start:
             maxLobbySize = Mode_Menu::GetMaxLobbySize();
-            printf("Lobby size is: %d\n", maxLobbySize);
+            printf("[Action] Lobby size is: %d\n", maxLobbySize);
 
             if (StartRaceMatch())
             {
-                printf("[Neuro] STAGE 4: Start initiated! Entering match...\n");
+                printf("[Action]: STAGE 4: Start initiated! Entering match...\n");
                 state.NeuroDidAction = false;
 
                 while (!ClickAcknowledged) 
                 { Sleep(100); }
 
-                printf("Blueprint Injected! Waiting for map to load...\n");
+                printf("[Action] Waiting for map to load...\n");
                 state.CurrentState = STAGE_Race_Game_Joining;
 
                 // Reset lobby variables for the new race
@@ -100,7 +100,7 @@ namespace Mode_Race
         case STAGE_Race_Game_Joining:
             if (PressInGameButton("JoinButton"))
             {
-                printf("[Neuro] STAGE 5: Neuro joined the game!\n");
+                printf("[Action]: STAGE 5: Neuro joined the game!\n");
                 state.CurrentState = STAGE_Race_Game_Waiting;
                 state.NeuroDidAction = false;
                 sentFinished1st = false;
@@ -150,7 +150,7 @@ namespace Mode_Race
 
                 std::string playersList = GetJoinedPlayers(requestedAmount);
 
-                printf("[Neuro] Fetched %d joined players: %s\n", requestedAmount, playersList.c_str());
+                printf("[Action]: Fetched %d joined players: %s\n", requestedAmount, playersList.c_str());
                 std::string tmp = "Joined players: ";
                 tmp.append(playersList);
                 client.sendContext(tmp, false);
@@ -192,11 +192,11 @@ namespace Mode_Race
                         // Supplying the username to both works perfectly.
                         ActiveGameMode->KickPlayer(ueUsername, ueUsername);
 
-                        printf("[Neuro] Kicked player: %s\n", requestedUsername.c_str());
+                        printf("[Action]: Kicked player: %s\n", requestedUsername.c_str());
                     }
                     else
                     {
-                        printf("[Neuro] Could not find active GameMode to kick player: %s\n", requestedUsername.c_str());
+                        printf("[Action]: Could not find active GameMode to kick player: %s\n", requestedUsername.c_str());
                     }
                 }
                 catch (const std::exception& e)
@@ -303,7 +303,7 @@ namespace Mode_Race
                         }
 
                         TargetMarble->SetMassInKgs(static_cast<float>(requestedAmount));
-                        printf("[Neuro] Set %s's mass to %.2f\n", requestedUsername.c_str(), requestedAmount);
+                        printf("[Action]: Set %s's mass to %.2f\n", requestedUsername.c_str(), requestedAmount);
 
                         // Add to the list with a fixed 30-second duration!
                         state.ActiveMassModifiers.push_back({
@@ -314,7 +314,7 @@ namespace Mode_Race
                     }
                     else
                     {
-                        printf("[Neuro] Could not find marble for user: %s\n", requestedUsername.c_str());
+                        printf("[Action]: Could not find marble for user: %s\n", requestedUsername.c_str());
                     }
                 }
                 catch (const std::exception& e)
@@ -345,7 +345,7 @@ namespace Mode_Race
                         newScale.Z = static_cast<float>(requestedAmount);
 
                         TargetMarble->SetActorScale3D(newScale);
-                        printf("[Neuro] Set %s's size to %.2f\n", requestedUsername.c_str(), requestedAmount);
+                        printf("[Action]: Set %s's size to %.2f\n", requestedUsername.c_str(), requestedAmount);
 
                         // 1.0f is default scale, set for a 30-second duration
                         state.ActiveSizeModifiers.push_back(MarblesGameState::ActiveSizeModifier{
@@ -356,7 +356,7 @@ namespace Mode_Race
                     }
                     else
                     {
-                        printf("[Neuro] Could not find marble for user: %s\n", requestedUsername.c_str());
+                        printf("[Action]: Could not find marble for user: %s\n", requestedUsername.c_str());
                     }
                 }
                 catch (const std::exception& e)
@@ -443,7 +443,7 @@ namespace Mode_Race
                 ApplyGravity(state.OriginalGravityZ);
                 state.IsGravityModified = false;
 
-                std::cout << "[Neuro] Gravity duration expired. Reset to normal" << state.OriginalGravityZ << std::endl;
+                std::cout << "[Action]: Gravity duration expired. Reset to normal" << state.OriginalGravityZ << std::endl;
             }
         }
 
@@ -456,7 +456,7 @@ namespace Mode_Race
                 {
                     // Restore the exact original mass we saved earlier!
                     it->MarblePtr->SetMassInKgs(it->OriginalMass);
-                    std::cout << "[Neuro] Marble mass duration expired. Reset to original" << it->OriginalMass << std::endl;
+                    std::cout << "[Action]: Marble mass duration expired. Reset to original" << it->OriginalMass << std::endl;
                 }
 
                 it = state.ActiveMassModifiers.erase(it);
@@ -481,7 +481,7 @@ namespace Mode_Race
                     normalScale.Z = it->OriginalScale;
 
                     it->MarblePtr->SetActorScale3D(normalScale);
-                    std::cout << "[Neuro] Marble size duration expired. Reset to original" << it->OriginalScale << std::endl;
+                    std::cout << "[Action]: Marble size duration expired. Reset to original" << it->OriginalScale << std::endl;
                 }
 
                 it = state.ActiveSizeModifiers.erase(it);
@@ -640,7 +640,7 @@ namespace Mode_Race
                 //PressInGameButton("ContinueButton"); // doesn't work
 
                 ForceProceedToResults();
-                printf("[Neuro] Race finished, continue button pressed.\n");
+                printf("[Action]: Race finished, continue button pressed.\n");
 
                 Sleep(1000);
                 std::string top10 = ProcessRaceResults(10);
@@ -656,13 +656,17 @@ namespace Mode_Race
                 msg.append(top10);
                 client.sendContext(msg, false);
 
+                // Destroy the saved UE pointers
+                state.ActiveMassModifiers.clear();
+                state.ActiveSizeModifiers.clear();
+                state.IsGravityModified = false;
+
                 state.CurrentState = STAGE_Race_Game_At_Results;
                 break;
             }
             
 
             case STAGE_Race_Game_At_Results:
-
                 AutoScrollRaceResults(searchTick);
                 break;
             }
