@@ -305,11 +305,11 @@ namespace Mode_Race
                         TargetMarble->SetMassInKgs(static_cast<float>(requestedAmount));
                         printf("[Action]: Set %s's mass to %.2f\n", requestedUsername.c_str(), requestedAmount);
 
-                        // Add to the list with a fixed 30-second duration!
+                        // Add to the list with a fixed 15-second duration!
                         state.ActiveMassModifiers.push_back({
                             TargetMarble,
                             startingMass,
-                            std::chrono::steady_clock::now() + std::chrono::seconds(30)
+                            std::chrono::steady_clock::now() + std::chrono::seconds(15)
                             });
                     }
                     else
@@ -347,11 +347,11 @@ namespace Mode_Race
                         TargetMarble->SetActorScale3D(newScale);
                         printf("[Action]: Set %s's size to %.2f\n", requestedUsername.c_str(), requestedAmount);
 
-                        // 1.0f is default scale, set for a 30-second duration
+                        // 1.0f is default scale, set for a 20-second duration
                         state.ActiveSizeModifiers.push_back(MarblesGameState::ActiveSizeModifier{
                             TargetMarble,
                             1.0f,
-                            std::chrono::steady_clock::now() + std::chrono::seconds(30)
+                            std::chrono::steady_clock::now() + std::chrono::seconds(20)
                             });
                     }
                     else
