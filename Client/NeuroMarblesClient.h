@@ -2,7 +2,7 @@
 #include "main.h"
 #include "GameState.h"
 
-class NeuroMarbles : public NeuroWebsocketpp::NeuroGameClient
+class NeuroMarbles : public NeuroIXWebsocket::NeuroGameClient
 {
 private:
     MarblesGameState& state;
@@ -18,5 +18,5 @@ public:
     bool isWaitingForForcedAction() const;
 
 protected:
-    void handleMessage(const NeuroWebsocketpp::NeuroResponse& response) override;
+    void handleMessage(const NeuroIXWebsocket::NeuroResponse& response) override;
 };

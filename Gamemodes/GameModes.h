@@ -5,52 +5,52 @@
 // Menu Routing
 namespace Mode_Menu
 {
-	extern NeuroWebsocketpp::Action actContinue;
-	extern NeuroWebsocketpp::Action actSelectRace;
+    extern NeuroIXWebsocket::Action actContinue;
+    extern NeuroIXWebsocket::Action actSelectRace;
 
-	void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
-	void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
+    void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
+    void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
 
-	int GetMaxLobbySize();
+    int GetMaxLobbySize();
 }
 
 // Race Routing
 namespace Mode_Race
 {
-	extern NeuroWebsocketpp::Action actMenuGoBack;
+    extern NeuroIXWebsocket::Action actMenuGoBack;
 
-	extern NeuroWebsocketpp::Action actRaceRandomMap;
-	extern NeuroWebsocketpp::Action actRaceStartLobby;
-	extern NeuroWebsocketpp::Action actRaceJoinGame;
-	extern NeuroWebsocketpp::Action actRaceStartGame;
-	extern NeuroWebsocketpp::Action actRaceFocusFirst;
-	extern NeuroWebsocketpp::Action actRaceFocusSecond;
-	extern NeuroWebsocketpp::Action actRaceFocusThird;
-	extern NeuroWebsocketpp::Action actRotateCamera;
-	extern NeuroWebsocketpp::Action actResultMainMenu;
-	extern NeuroWebsocketpp::Action actResultNextRandomMap;
+    extern NeuroIXWebsocket::Action actRaceRandomMap;
+    extern NeuroIXWebsocket::Action actRaceStartLobby;
+    extern NeuroIXWebsocket::Action actRaceJoinGame;
+    extern NeuroIXWebsocket::Action actRaceStartGame;
+    extern NeuroIXWebsocket::Action actRaceFocusFirst;
+    extern NeuroIXWebsocket::Action actRaceFocusSecond;
+    extern NeuroIXWebsocket::Action actRaceFocusThird;
+    extern NeuroIXWebsocket::Action actRotateCamera;
+    extern NeuroIXWebsocket::Action actResultMainMenu;
+    extern NeuroIXWebsocket::Action actResultNextRandomMap;
 
-	extern NeuroWebsocketpp::Action* actRaceGetJoinedPlayers;
-	extern NeuroWebsocketpp::Action* actSetGlobalGravity;
-	extern NeuroWebsocketpp::Action* actSetMarbleMass;
-	extern NeuroWebsocketpp::Action* actKickPlayer;
+    extern NeuroIXWebsocket::Action* actRaceGetJoinedPlayers;
+    extern NeuroIXWebsocket::Action* actSetGlobalGravity;
+    extern NeuroIXWebsocket::Action* actSetMarbleMass;
+    extern NeuroIXWebsocket::Action* actKickPlayer;
 
-	void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
-	void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
+    void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
+    void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
 }
 
 // Royale Routing
 namespace Mode_Royale
 {
-	void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
-	void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
+    void ProcessAction(NeuroMarbles& client, MarblesGameState& state);
+    void ProcessIdle(NeuroMarbles& client, MarblesGameState& state, int searchTick);
 }
 
 // Enum for the Registry
 enum class EActionRegistry
 {
-	Register,
-	Unregister
+    Register,
+    Unregister
 };
 
 void RegisterAnAction(EActionRegistry operation, ENeuroState previousStage, ENeuroState currentStage, NeuroMarbles& client);

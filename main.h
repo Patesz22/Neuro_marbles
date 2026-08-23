@@ -13,7 +13,7 @@
 #include <vector>
 #include <memory>
 
-#include "NeuroGameSDK/NeuroGameSdkWebsocketpp.hpp"
+#include "Dependencies/NeuroGameSDKIXWebsocket.hpp"
 #include "Client/NeuroMarblesClient.h"
 #include "misc.h"
 #include "json/json.hpp"
@@ -22,6 +22,7 @@
 #include "SDK.hpp"
 #include "Actions/Actions_Complex.h"
 #include "Config/NeuroConfig.h"
+
 
 
 

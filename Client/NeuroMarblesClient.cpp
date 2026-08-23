@@ -14,7 +14,7 @@ bool NeuroMarbles::isWaitingForForcedAction() const
 	return waitingForForcedAction; // Grabs the protected variable from the SDK
 }
 
-void NeuroMarbles::handleMessage(const NeuroWebsocketpp::NeuroResponse& response)
+void NeuroMarbles::handleMessage(const NeuroIXWebsocket::NeuroResponse& response)
 {
 	// Intercept startup acknowledgement
 	if (response.getCommand() == "startup")

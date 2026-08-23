@@ -26,19 +26,19 @@ namespace Mode_Race
 
 	// Race-Specific Neuro Actions
 	nlohmann::json empty_schema;
-	NeuroWebsocketpp::Action actMenuGoBack("menu_go_back", "Go back to the gamemode selection menu screen.", empty_schema);
+	NeuroIXWebsocket::Action actMenuGoBack("menu_go_back", "Go back to the gamemode selection menu screen.", empty_schema);
 
-	NeuroWebsocketpp::Action actRaceRandomMap("randomize_race_map", "Pick a random track to race on!", empty_schema);
-	NeuroWebsocketpp::Action actRaceStartLobby("race_start_lobby", "Start the lobby so players can join!", empty_schema);
-	NeuroWebsocketpp::Action actRaceJoinGame("race_join_game", "Spawn your own marble into the race!", empty_schema);
-	NeuroWebsocketpp::Action actRaceStartGame("race_start_game", "Start the game on the current map, but WAIT until the lobby is full!", empty_schema);
+	NeuroIXWebsocket::Action actRaceRandomMap("randomize_race_map", "Pick a random track to race on!", empty_schema);
+	NeuroIXWebsocket::Action actRaceStartLobby("race_start_lobby", "Start the lobby so players can join!", empty_schema);
+	NeuroIXWebsocket::Action actRaceJoinGame("race_join_game", "Spawn your own marble into the race!", empty_schema);
+	NeuroIXWebsocket::Action actRaceStartGame("race_start_game", "Start the game on the current map, but WAIT until the lobby is full!", empty_schema);
 
-	NeuroWebsocketpp::Action actRaceFocusFirst("race_focus_first_place", "Focus the first place player in view", empty_schema);
-	NeuroWebsocketpp::Action actRaceFocusSecond("race_focus_second_place", "Focus the second place player in view", empty_schema);
-	NeuroWebsocketpp::Action actRaceFocusThird("race_focus_third_place", "Focus the third place player in view", empty_schema);
-	NeuroWebsocketpp::Action actRotateCamera("rotate_cam", "Rotate the camera so chat can see", empty_schema);
-	NeuroWebsocketpp::Action actResultMainMenu("result_exit_race_menu", "Exit to main menu after seeing the results.", empty_schema);
-	NeuroWebsocketpp::Action actResultNextRandomMap("result_next_random_map", "Start the next map, randomly", empty_schema);
+	NeuroIXWebsocket::Action actRaceFocusFirst("race_focus_first_place", "Focus the first place player in view", empty_schema);
+	NeuroIXWebsocket::Action actRaceFocusSecond("race_focus_second_place", "Focus the second place player in view", empty_schema);
+	NeuroIXWebsocket::Action actRaceFocusThird("race_focus_third_place", "Focus the third place player in view", empty_schema);
+	NeuroIXWebsocket::Action actRotateCamera("rotate_cam", "Rotate the camera so chat can see", empty_schema);
+	NeuroIXWebsocket::Action actResultMainMenu("result_exit_race_menu", "Exit to main menu after seeing the results.", empty_schema);
+	NeuroIXWebsocket::Action actResultNextRandomMap("result_next_random_map", "Start the next map, randomly", empty_schema);
 
 
 	void ProcessAction(NeuroMarbles& client, MarblesGameState& state)

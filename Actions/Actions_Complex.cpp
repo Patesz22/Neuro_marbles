@@ -2,17 +2,17 @@
 
 namespace Mode_Race
 {
-	NeuroWebsocketpp::Action* actRaceGetJoinedPlayers = nullptr;
-	NeuroWebsocketpp::Action* actSetGlobalGravity = nullptr;
-	NeuroWebsocketpp::Action* actSetMarbleMass = nullptr;
-	NeuroWebsocketpp::Action* actKickPlayer = nullptr;
-	NeuroWebsocketpp::Action* actSetMarbleSize = nullptr;
+	NeuroIXWebsocket::Action* actRaceGetJoinedPlayers = nullptr;
+	NeuroIXWebsocket::Action* actSetGlobalGravity = nullptr;
+	NeuroIXWebsocket::Action* actSetMarbleMass = nullptr;
+	NeuroIXWebsocket::Action* actKickPlayer = nullptr;
+	NeuroIXWebsocket::Action* actSetMarbleSize = nullptr;
 
 	void InitComplexActions()
 	{
 		if (!actRaceGetJoinedPlayers)
 		{
-			actRaceGetJoinedPlayers = new NeuroWebsocketpp::Action(
+			actRaceGetJoinedPlayers = new NeuroIXWebsocket::Action(
 				"get_joined_players",
 				"Returns the specified amount of currently joined players. Input range is 1-1000, single integer.",
 				nlohmann::json::parse(R"(
@@ -34,7 +34,7 @@ namespace Mode_Race
 
 		if (!actSetGlobalGravity)
 		{
-			actSetGlobalGravity = new NeuroWebsocketpp::Action(
+			actSetGlobalGravity = new NeuroIXWebsocket::Action(
 				"set_global_gravity",
 				"Changes the global race gravity for the specified duration. Default gravity is -3920. Use positive numbers to make marbles float up! Minimum is -5500, maximum is 50. Duration is between 1-5 sec. The cooldown is 60s.",
 				nlohmann::json::parse(R"(
@@ -62,7 +62,7 @@ namespace Mode_Race
 
 		if (!actSetMarbleMass)
 		{
-			actSetMarbleMass = new NeuroWebsocketpp::Action(
+			actSetMarbleMass = new NeuroIXWebsocket::Action(
 				"set_marble_mass",
 				"Changes the weight of a specific viewer's marble. The mass 37.88 is default. >37.88 is heavy, <37.88 is light.",
 				nlohmann::json::parse(R"(
@@ -88,7 +88,7 @@ namespace Mode_Race
 
 		if (!actKickPlayer)
 		{
-			actKickPlayer = new NeuroWebsocketpp::Action(
+			actKickPlayer = new NeuroIXWebsocket::Action(
 				"kick_player",
 				"Kicks a specific viewer from the current race.",
 				nlohmann::json::parse(R"(
@@ -108,7 +108,7 @@ namespace Mode_Race
 
 		if (!actSetMarbleSize)
 		{
-			actSetMarbleSize = new NeuroWebsocketpp::Action(
+			actSetMarbleSize = new NeuroIXWebsocket::Action(
 				"set_marble_size",
 				"Changes the physical size of a specific viewer's marble. The multiplier: 1.0 is normal. 2.0 is double size, 0.5 is half size.",
 				nlohmann::json::parse(R"(

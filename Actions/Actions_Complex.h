@@ -4,11 +4,11 @@
 
 namespace Mode_Race
 {
-	extern NeuroWebsocketpp::Action* actRaceGetJoinedPlayers;
-	extern NeuroWebsocketpp::Action* actSetGlobalGravity;
-	extern NeuroWebsocketpp::Action* actSetMarbleMass;
-	extern NeuroWebsocketpp::Action* actKickPlayer;
-	extern NeuroWebsocketpp::Action* actSetMarbleSize;
+	extern NeuroIXWebsocket::Action* actRaceGetJoinedPlayers;
+	extern NeuroIXWebsocket::Action* actSetGlobalGravity;
+	extern NeuroIXWebsocket::Action* actSetMarbleMass;
+	extern NeuroIXWebsocket::Action* actKickPlayer;
+	extern NeuroIXWebsocket::Action* actSetMarbleSize;
 
 	void InitComplexActions();
 

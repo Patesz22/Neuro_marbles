@@ -8,10 +8,10 @@ namespace Mode_Menu
 {
     // Define Menu-specific actions
     nlohmann::json empty_schema;
-    NeuroWebsocketpp::Action actContinue("click_welcome_continue", "Click to bypass the promo screen!", empty_schema);
-    NeuroWebsocketpp::Action actSelectRace("select_race_mode", "Select the standard Race Game Mode!", empty_schema);
+    NeuroIXWebsocket::Action actContinue("click_welcome_continue", "Click to bypass the promo screen!", empty_schema);
+    NeuroIXWebsocket::Action actSelectRace("select_race_mode", "Select the standard Race Game Mode!", empty_schema);
 
-    // NeuroWebsocketpp::Action actSelectRoyale("select_royale_mode", "Select the Royale Game Mode!", empty_schema);
+    // NeuroIXWebsocket::Action actSelectRoyale("select_royale_mode", "Select the Royale Game Mode!", empty_schema);
 
     void ProcessAction(NeuroMarbles& client, MarblesGameState& state)
     {
