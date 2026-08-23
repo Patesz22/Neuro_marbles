@@ -52,7 +52,7 @@ This project requires a C++ compiler compatible with C++17 or higher.
 
 * **[neuro-sdk](https://github.com/VedalAI/neuro-sdk) by Vedal987**, under MIT License
 * **[neuro-sdk-websocketpp](https://github.com/chris-pie/neuro-sdk-websocketpp) by chris-pie**
-* **[IXWebSocket][(https://github.com/machinezone/IXWebSocket](https://github.com/machinezone/IXWebSocket)) by machinezone**, under BSD 3-Clause License
+* **[IXWebSocket](https://github.com/machinezone/IXWebSocket) by machinezone**, under BSD 3-Clause License
 * **[nlohmann/json](https://github.com/nlohmann/json) by nlohmann**, under MIT License
 * **[Dumper-7](https://github.com/Encryqed/Dumper-7) by Encryqed** 
 
