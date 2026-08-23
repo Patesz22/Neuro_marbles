@@ -46,6 +46,4 @@ UtfN.hpp
 /websocketpp
 /json
 Neuro_marbles.vcxproj.user
-/OpenSSL-Win64
-/OpenSSL
-/Dependencies
+/Dependencies/OpenSSL
