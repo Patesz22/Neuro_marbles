@@ -2,20 +2,20 @@
 
 namespace Mode_Race
 {
-    NeuroWebsocketpp::Action* actRaceGetJoinedPlayers = nullptr;
-    NeuroWebsocketpp::Action* actSetGlobalGravity = nullptr;
-    NeuroWebsocketpp::Action* actSetMarbleMass = nullptr;
-    NeuroWebsocketpp::Action* actKickPlayer = nullptr;
-    NeuroWebsocketpp::Action* actSetMarbleSize = nullptr;
+	NeuroWebsocketpp::Action* actRaceGetJoinedPlayers = nullptr;
+	NeuroWebsocketpp::Action* actSetGlobalGravity = nullptr;
+	NeuroWebsocketpp::Action* actSetMarbleMass = nullptr;
+	NeuroWebsocketpp::Action* actKickPlayer = nullptr;
+	NeuroWebsocketpp::Action* actSetMarbleSize = nullptr;
 
-    void InitComplexActions()
-    {
-        if (!actRaceGetJoinedPlayers)
-        {
-            actRaceGetJoinedPlayers = new NeuroWebsocketpp::Action(
-                "get_joined_players",
-                "Returns the specified amount of currently joined players. Input range is 1-1000, single integer.",
-                nlohmann::json::parse(R"(
+	void InitComplexActions()
+	{
+		if (!actRaceGetJoinedPlayers)
+		{
+			actRaceGetJoinedPlayers = new NeuroWebsocketpp::Action(
+				"get_joined_players",
+				"Returns the specified amount of currently joined players. Input range is 1-1000, single integer.",
+				nlohmann::json::parse(R"(
                     {
                         "type": "object",
                         "properties": {
@@ -29,15 +29,15 @@ namespace Mode_Race
                         "required": ["amount"]
                     }
                 )")
-            );
-        }
+			);
+		}
 
-        if (!actSetGlobalGravity)
-        {
-            actSetGlobalGravity = new NeuroWebsocketpp::Action(
-                "set_global_gravity",
-                "Changes the global race gravity for the specified duration. Default gravity is -3920. Use positive numbers to make marbles float up! Minimum is -5500, maximum is 50. Duration is between 1-5 sec. The cooldown is 60s.",
-                nlohmann::json::parse(R"(
+		if (!actSetGlobalGravity)
+		{
+			actSetGlobalGravity = new NeuroWebsocketpp::Action(
+				"set_global_gravity",
+				"Changes the global race gravity for the specified duration. Default gravity is -3920. Use positive numbers to make marbles float up! Minimum is -5500, maximum is 50. Duration is between 1-5 sec. The cooldown is 60s.",
+				nlohmann::json::parse(R"(
                     {
                         "type": "object",
                         "properties": {
@@ -57,15 +57,15 @@ namespace Mode_Race
                         "required": ["amount", "duration"]
                     }
                 )")
-            );
-        }
+			);
+		}
 
-        if (!actSetMarbleMass)
-        {
-            actSetMarbleMass = new NeuroWebsocketpp::Action(
-                "set_marble_mass",
-                "Changes the weight of a specific viewer's marble. The mass 37.88 is default. >37.88 is heavy, <37.88 is light.",
-                nlohmann::json::parse(R"(
+		if (!actSetMarbleMass)
+		{
+			actSetMarbleMass = new NeuroWebsocketpp::Action(
+				"set_marble_mass",
+				"Changes the weight of a specific viewer's marble. The mass 37.88 is default. >37.88 is heavy, <37.88 is light.",
+				nlohmann::json::parse(R"(
                 {
                     "type": "object",
                     "properties": {
@@ -83,15 +83,15 @@ namespace Mode_Race
                     "required": ["username", "amount"]
                 }
                 )")
-            );
-        }
+			);
+		}
 
-        if (!actKickPlayer)
-        {
-            actKickPlayer = new NeuroWebsocketpp::Action(
-                "kick_player",
-                "Kicks a specific viewer from the current race.",
-                nlohmann::json::parse(R"(
+		if (!actKickPlayer)
+		{
+			actKickPlayer = new NeuroWebsocketpp::Action(
+				"kick_player",
+				"Kicks a specific viewer from the current race.",
+				nlohmann::json::parse(R"(
                 {
                     "type": "object",
                     "properties": {
@@ -103,15 +103,15 @@ namespace Mode_Race
                     "required": ["username"]
                 }
                 )")
-            );
-        }
+			);
+		}
 
-        if (!actSetMarbleSize)
-        {
-            actSetMarbleSize = new NeuroWebsocketpp::Action(
-                "set_marble_size",
-                "Changes the physical size of a specific viewer's marble. The multiplier: 1.0 is normal. 2.0 is double size, 0.5 is half size.",
-                nlohmann::json::parse(R"(
+		if (!actSetMarbleSize)
+		{
+			actSetMarbleSize = new NeuroWebsocketpp::Action(
+				"set_marble_size",
+				"Changes the physical size of a specific viewer's marble. The multiplier: 1.0 is normal. 2.0 is double size, 0.5 is half size.",
+				nlohmann::json::parse(R"(
                 {
                     "type": "object",
                     "properties": {
@@ -129,40 +129,40 @@ namespace Mode_Race
                     "required": ["username", "amount"]
                 }
                 )")
-            );
-        }
-    }
+			);
+		}
+	}
 
-    void FreeComplexActions()
-    {
-        if (actRaceGetJoinedPlayers)
-        {
-            delete actRaceGetJoinedPlayers;
-            actRaceGetJoinedPlayers = nullptr;
-        }
+	void FreeComplexActions()
+	{
+		if (actRaceGetJoinedPlayers)
+		{
+			delete actRaceGetJoinedPlayers;
+			actRaceGetJoinedPlayers = nullptr;
+		}
 
-        if (actSetGlobalGravity)
-        {
-            delete actSetGlobalGravity;
-            actSetGlobalGravity = nullptr;
-        }
+		if (actSetGlobalGravity)
+		{
+			delete actSetGlobalGravity;
+			actSetGlobalGravity = nullptr;
+		}
 
-        if (actSetMarbleMass)
-        {
-            delete actSetMarbleMass;
-            actSetMarbleMass = nullptr;
-        }
+		if (actSetMarbleMass)
+		{
+			delete actSetMarbleMass;
+			actSetMarbleMass = nullptr;
+		}
 
-        if (actKickPlayer)
-        {
-            delete actKickPlayer;
-            actKickPlayer = nullptr;
-        }
+		if (actKickPlayer)
+		{
+			delete actKickPlayer;
+			actKickPlayer = nullptr;
+		}
 
-        if (actSetMarbleSize)
-        {
-            delete actSetMarbleSize;
-            actSetMarbleSize = nullptr;
-        }
-    }
+		if (actSetMarbleSize)
+		{
+			delete actSetMarbleSize;
+			actSetMarbleSize = nullptr;
+		}
+	}
 };
