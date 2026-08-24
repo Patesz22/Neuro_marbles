@@ -464,7 +464,7 @@ namespace NeuroIXWebsocket
         void on_close()
         {
             connected = false;
-            *output << "Connection closed." << (retry_on_fail ? " IXWebSocket will auto-reconnect..." : "") << std::endl;
+            *output << "Connection closed." << (retry_on_fail ? " Starting auto-reconnect..." : "") << std::endl;
             condition.notify_all();
         }
 
