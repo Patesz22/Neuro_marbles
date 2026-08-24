@@ -41,7 +41,7 @@ private:
             {
                 if (msg->type == ix::WebSocketMessageType::Open)
                 {
-                    std::cout << "[Twitch] Securely connected to IRC WSS!" << std::endl;
+                    std::cout << "[Twitch] Connected to IRC WSS!" << std::endl;
 
                     m_webSocket.sendText("PASS SCHMOOPIIE\r\n");
                     m_webSocket.sendText("NICK justinfan12345\r\n");
