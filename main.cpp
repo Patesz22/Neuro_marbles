@@ -1,6 +1,7 @@
 #pragma once
 #include "main.h" 
 #include "Gamemodes/GameModes.h"
+#include "Twitch/Twitch.h"
 
 // Globals
 bool bBotActive = false;
@@ -46,6 +47,12 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 
 	std::cout << "Websocket connection successful!" << std::endl;
 
+	TwitchChatClient Twitch;
+	std::string TwitchChannelName = GetConfigString("TwitchChannelname", "vedal987");
+	Twitch.Start(TwitchChannelName);
+
+	std::cout << "Twitch connection successful!" << std::endl;
+
 	bool bWasNumpad1Pressed = false;
 	bool bWasLeftClicked = false;
 	static long int searchTick = 0;
@@ -76,6 +83,57 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 		if (bBotActive)
 		{
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//				Checking for Twitch manual override
+// 
+			TwitchOverride currentCmd;
+			bool hasCommand = false;
+
+			{
+				std::lock_guard<std::mutex> lock(OverrideMutex);
+				if (!OverrideQueue.empty())
+				{
+					currentCmd = OverrideQueue.front();
+					OverrideQueue.pop();
+					hasCommand = true;
+				}
+			}
+
+			if (hasCommand)
+			{
+				if (currentCmd.CommandType == "STATE")
+				{
+					try
+					{
+						// "!override_state 5" forces STAGE_Race_Game_Started
+						int newState = std::stoi(currentCmd.Payload);
+						gameState.CurrentState = static_cast<ENeuroState>(newState);
+						printf("[Twitch] Forced State Change to: %d\n", newState);
+					}
+					catch (...)
+					{
+						printf("[Twitch] Invalid state ID.\n");
+					}
+				}
+				else if (currentCmd.CommandType == "BUTTON")
+				{
+					// "!press_button StartButton"
+					Mode_Race::PressInGameButton(currentCmd.Payload);
+					printf("[Twitch] Pressed Button: %s\n", currentCmd.Payload.c_str());
+				}
+				else if (currentCmd.CommandType == "ACTION")
+				{
+					// "!exec_action set_global_gravity"
+					// might need fake JSON
+					gameState.LastNeuroAction = currentCmd.Payload;
+					gameState.NeuroDidAction = true;
+					printf("[Twitch] Forced Action: %s\n", currentCmd.Payload.c_str());
+				}
+			}
+
+//
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			if (gameState.NeuroDidAction)
 			{
 				// Route Actions
@@ -90,7 +148,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 			}
 			else
 			{
-				if (searchTick % 2500 == 0)
+				if (searchTick % 3500 == 0)
 				{
 					printf("[Neuro DEBUG] Waiting for Neuro at state: %d\n", gameState.CurrentState);
 				}

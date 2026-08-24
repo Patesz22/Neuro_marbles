@@ -17,12 +17,17 @@ namespace Mode_Menu
     {
         switch (state.CurrentState)
         {
+            default:
+                std::cout << "Could not find a valid case for this action: " << state.LastNeuroAction << std::endl;
+                state.NeuroDidAction = false;
+                break;
+
         case STAGE_Welcome_Continue:
             if (state.LastNeuroAction.compare("click_welcome_continue") == 0)
             {
                 if (ClickGenericButton("ContinueButton"))
                 {
-                    printf("[Action]: Back to Gamemode selection!\n");
+                    printf("[Action]: Gamemode selection!\n");
                     state.CurrentState = STAGE_Gamemode_Select;
                     Sleep(1000);
                 }

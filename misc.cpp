@@ -1,4 +1,5 @@
 #include "misc.h"
+#include "GameState.h"
 #include <windows.h>
 
 

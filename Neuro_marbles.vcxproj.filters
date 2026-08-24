@@ -99,6 +99,9 @@
     <ClCompile Include="Dependencies\OpenSSL\include\openssl\applink.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Twitch\Twitch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">

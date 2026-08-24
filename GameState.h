@@ -88,12 +88,8 @@ struct TwitchOverride
 	std::string Payload;     // data
 };
 
-inline std::queue<TwitchOverride> OverrideQueue;
-inline std::mutex OverrideMutex;
+extern std::queue<TwitchOverride> OverrideQueue;
+extern std::mutex OverrideMutex;
 
-inline void PushOverride(const std::string& type, const std::string& payload)
-{
-	std::lock_guard<std::mutex> lock(OverrideMutex);
-	OverrideQueue.push({ type, payload });
-}
+void PushOverride(const std::string& type, const std::string& payload);
 
