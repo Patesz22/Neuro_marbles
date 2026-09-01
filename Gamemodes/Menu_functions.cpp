@@ -201,9 +201,6 @@ namespace Mode_Menu
 		SDK::UObject* ActiveMapListWidget = nullptr;
 		std::string mapName = "Unknown Map";
 
-		// Grab the visibility function safely outside the loop
-		SDK::UFunction* isVisibleFunc = MemoryHelpers::FindFunctionByName("IsVisible");
-
 		int initialObjectCount = SDK::UObject::GObjects->Num();
 		for (int i = initialObjectCount - 1; i >= 0; --i)
 		{
@@ -217,31 +214,21 @@ namespace Mode_Menu
 
 			std::string fullName = Obj->GetFullName();
 
-			// Ensure we only grab the VISIBLE Map List to avoid "Ghost" widgets!
+			// SAFELY check MapList visibility using native SDK casting
 			if (!ActiveMapListWidget &&
 				fullName.find("W_RaceExperienceMapList") != std::string::npos &&
 				fullName.find("Transient") != std::string::npos)
 			{
-				if (isVisibleFunc)
-				{
-					struct
-					{
-						bool ReturnValue;
-					} Params = { false };
-					Obj->ProcessEvent(isVisibleFunc, &Params);
+				// Cast to base UUserWidget to safely use the SDK's IsVisible()
+				SDK::UUserWidget* WidgetObj = static_cast<SDK::UUserWidget*>(Obj);
 
-					if (Params.ReturnValue)
-					{
-						ActiveMapListWidget = Obj;
-					}
-					else
-					{
-						printf(">> [DEBUG] Ignored hidden 'Ghost' MapList widget!\n");
-					}
+				if (WidgetObj && WidgetObj->IsVisible())
+				{
+					ActiveMapListWidget = Obj;
 				}
 			}
 
-			// Ensure we grab the VISIBLE Random Button
+			// Safely grab the Random Button
 			if (!ActiveRandomButton && Obj->IsA(SDK::UW_MOSButton_Default_C::StaticClass()))
 			{
 				if (fullName.find("Transient") != std::string::npos &&
@@ -256,7 +243,7 @@ namespace Mode_Menu
 				}
 			}
 
-			// found both active elements -> stop looping!
+			// Stop looping if we found both!
 			if (ActiveRandomButton && ActiveMapListWidget)
 				break;
 		}
@@ -267,7 +254,7 @@ namespace Mode_Menu
 			return mapName;
 		}
 
-		// This scrambles the Blueprint seed
+		// Scramble the Blueprint seed
 		srand((unsigned int)time(NULL));
 		int randomChurn = (rand() % 50) + 15;
 		SDK::UKismetMathLibrary* MathLib = SDK::UKismetMathLibrary::GetDefaultObj();
@@ -290,8 +277,8 @@ namespace Mode_Menu
 		if (ActiveMapListWidget)
 		{
 			SDK::UFunction* GetMapFunc = nullptr;
-
 			int maxObjects = SDK::UObject::GObjects->Num();
+
 			for (int i = maxObjects - 1; i >= 0; --i)
 			{
 				SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -299,8 +286,10 @@ namespace Mode_Menu
 
 				std::string fullName = Obj->GetFullName();
 
+				// SAFELY ensure the function belongs to the MapList class!
 				if (fullName.find("Function") != std::string::npos &&
-					fullName.find("GetSelectedStudioMap") != std::string::npos)
+					fullName.find("GetSelectedStudioMap") != std::string::npos &&
+					fullName.find("W_RaceExperienceMapList") != std::string::npos)
 				{
 					GetMapFunc = static_cast<SDK::UFunction*>(Obj);
 					break;
@@ -325,27 +314,11 @@ namespace Mode_Menu
 						mapName = MapDef->TileTitle.ToString();
 						printf(">> [DEBUG] Successfully extracted real map name!\n");
 					}
-					else
-					{
-						printf(">> [DEBUG] Failed to cast to UMOSUserFacingExperienceDefinition!\n");
-					}
-				}
-				else
-				{
-					printf(">> [DEBUG] GetSelectedStudioMap returned NULL!\n");
 				}
 			}
-			else
-			{
-				printf(">> [DEBUG] CRITICAL: Function 'GetSelectedStudioMap' literally does not exist in memory!\n");
-			}
-		}
-		else
-		{
-			printf(">> [DEBUG] CRITICAL: ActiveMapListWidget is NULL!\n");
 		}
 
-		printf("[STAGE 3] RNG Seed churned %d times. Selected Map: %s <<\n", randomChurn, mapName.c_str());
+		printf("[STAGE 3] Selected Map: %s <<\n", mapName.c_str());
 
 		return mapName;
 	}

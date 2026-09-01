@@ -50,9 +50,8 @@ namespace Mode_Race
 				printf("[Action]: STAGE 1: Back button pressed.\n");
 				lastState = state.CurrentState;
 				state.CurrentState = STAGE_Gamemode_Select;
-				RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
-				RegisterAnAction(EActionRegistry::Register, lastState, state.CurrentState, client);
-				Sleep(1500);
+				//RegisterAnAction(EActionRegistry::Unregister, lastState, state.CurrentState, client);
+				//RegisterAnAction(EActionRegistry::Register, lastState, state.CurrentState, client);
 			}
 			state.NeuroDidAction = false;
 		}
