@@ -14,6 +14,7 @@ todo
 * add modifier actions
   * ~~I've seen a SetGravity function eg.~~
   * ~~SetMassInKgs~~
+  * ~~SetMarbleSize~~
   * Investigate UCheatManager class
   * GodMode
   * BoostMarble
@@ -24,8 +25,5 @@ todo
 * increase the lobby size
   * there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
   * maybe ask the devs to allow us to use lobbies with more players
-* Add twitch chat manual override for specific user
+* ~~Add twitch chat manual override for specific user~~
 * ~~Add console and file logging~~
-
-broken after 5.8.1 update:
-~~GetMaxPlayers~~ fixed
