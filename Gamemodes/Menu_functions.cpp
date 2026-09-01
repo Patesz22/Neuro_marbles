@@ -195,24 +195,55 @@ namespace Mode_Menu
 	}
 
 
-	bool ClickRandomizeButton()
+	std::string ClickRandomizeButton()
 	{
 		SDK::UW_MOSButton_Default_C* ActiveRandomButton = nullptr;
+		SDK::UObject* ActiveMapListWidget = nullptr;
+		std::string mapName = "Unknown Map";
+
+		// Grab the visibility function safely outside the loop
+		SDK::UFunction* isVisibleFunc = MemoryHelpers::FindFunctionByName("IsVisible");
 
 		int initialObjectCount = SDK::UObject::GObjects->Num();
 		for (int i = initialObjectCount - 1; i >= 0; --i)
 		{
-			if (i >= SDK::UObject::GObjects->Num()) break;
+			if (i >= SDK::UObject::GObjects->Num())
+				break;
 
 			SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
 			int32_t d; float df;
-			if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
-			if (Obj->IsDefaultObject()) continue;
+			if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df) || Obj->IsDefaultObject())
+				continue;
 
-			if (Obj->IsA(SDK::UW_MOSButton_Default_C::StaticClass()))
+			std::string fullName = Obj->GetFullName();
+
+			// Ensure we only grab the VISIBLE Map List to avoid "Ghost" widgets!
+			if (!ActiveMapListWidget &&
+				fullName.find("W_RaceExperienceMapList") != std::string::npos &&
+				fullName.find("Transient") != std::string::npos)
 			{
-				std::string fullName = Obj->GetFullName();
+				if (isVisibleFunc)
+				{
+					struct
+					{
+						bool ReturnValue;
+					} Params = { false };
+					Obj->ProcessEvent(isVisibleFunc, &Params);
 
+					if (Params.ReturnValue)
+					{
+						ActiveMapListWidget = Obj;
+					}
+					else
+					{
+						printf(">> [DEBUG] Ignored hidden 'Ghost' MapList widget!\n");
+					}
+				}
+			}
+
+			// Ensure we grab the VISIBLE Random Button
+			if (!ActiveRandomButton && Obj->IsA(SDK::UW_MOSButton_Default_C::StaticClass()))
+			{
 				if (fullName.find("Transient") != std::string::npos &&
 					fullName.find("RandomButton") != std::string::npos)
 				{
@@ -221,41 +252,104 @@ namespace Mode_Menu
 					if (Btn->IsVisible())
 					{
 						ActiveRandomButton = Btn;
-						break;
 					}
 				}
 			}
+
+			// found both active elements -> stop looping!
+			if (ActiveRandomButton && ActiveMapListWidget)
+				break;
 		}
 
 		if (!ActiveRandomButton)
 		{
-			printf(">> [ERROR] Could not find VISIBLE Random Button! <<\n");
-			return false;
+			printf("[ERROR] Could not find VISIBLE Random Button! <<\n");
+			return mapName;
 		}
 
 		// This scrambles the Blueprint seed
 		srand((unsigned int)time(NULL));
 		int randomChurn = (rand() % 50) + 15;
-
 		SDK::UKismetMathLibrary* MathLib = SDK::UKismetMathLibrary::GetDefaultObj();
+
 		if (MathLib)
 		{
 			for (int i = 0; i < randomChurn; i++)
 			{
-				// Advance the game's global random seed silently
 				MathLib->RandomFloat();
 			}
 		}
 
+		// Fire the click events
 		ActiveRandomButton->BP_OnPressed();
 		ActiveRandomButton->HandleButtonPressed();
 		ActiveRandomButton->HandleButtonClicked();
 		ActiveRandomButton->BP_OnReleased();
 		ActiveRandomButton->HandleButtonReleased();
 
-		printf(">> [STAGE 3] RNG Seed churned %d times. <<\n", randomChurn);
-		return true;
+		if (ActiveMapListWidget)
+		{
+			SDK::UFunction* GetMapFunc = nullptr;
+
+			int maxObjects = SDK::UObject::GObjects->Num();
+			for (int i = maxObjects - 1; i >= 0; --i)
+			{
+				SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+				if (!Obj) continue;
+
+				std::string fullName = Obj->GetFullName();
+
+				if (fullName.find("Function") != std::string::npos &&
+					fullName.find("GetSelectedStudioMap") != std::string::npos)
+				{
+					GetMapFunc = static_cast<SDK::UFunction*>(Obj);
+					break;
+				}
+			}
+
+			if (GetMapFunc)
+			{
+				struct
+				{
+					SDK::UObject* SelectedMap;
+				} Params = { nullptr };
+
+				ActiveMapListWidget->ProcessEvent(GetMapFunc, &Params);
+
+				if (Params.SelectedMap)
+				{
+					SDK::UMOSUserFacingExperienceDefinition* MapDef = static_cast<SDK::UMOSUserFacingExperienceDefinition*>(Params.SelectedMap);
+
+					if (MapDef)
+					{
+						mapName = MapDef->TileTitle.ToString();
+						printf(">> [DEBUG] Successfully extracted real map name!\n");
+					}
+					else
+					{
+						printf(">> [DEBUG] Failed to cast to UMOSUserFacingExperienceDefinition!\n");
+					}
+				}
+				else
+				{
+					printf(">> [DEBUG] GetSelectedStudioMap returned NULL!\n");
+				}
+			}
+			else
+			{
+				printf(">> [DEBUG] CRITICAL: Function 'GetSelectedStudioMap' literally does not exist in memory!\n");
+			}
+		}
+		else
+		{
+			printf(">> [DEBUG] CRITICAL: ActiveMapListWidget is NULL!\n");
+		}
+
+		printf("[STAGE 3] RNG Seed churned %d times. Selected Map: %s <<\n", randomChurn, mapName.c_str());
+
+		return mapName;
 	}
+
 
 
 	int GetMaxLobbySize()
@@ -268,7 +362,7 @@ namespace Mode_Menu
 			SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
 
 			int32_t d; float df;
-			if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
+			if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) continue;
 
 			// Use the safe StaticClass() check to find the Race Menu
 			if (!Obj->IsDefaultObject() && Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()))

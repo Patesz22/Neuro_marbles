@@ -65,14 +65,16 @@ namespace Mode_Race
 				break;
 
 			case STAGE_Race_Map_Select:
-				if (Mode_Menu::ClickRandomizeButton())
-				{
-					printf("[Action]: STAGE 3: Map selected.\n");
-					state.CurrentState = STAGE_Race_Lobby_Start;
-					state.NeuroDidAction = false;
-					Sleep(1000);
-				}
+			{
+				std::string mapName = Mode_Menu::ClickRandomizeButton();
+
+				printf("[Action]: STAGE 3: Map selected: %s\n", mapName.c_str());
+				state.CurrentState = STAGE_Race_Lobby_Start;
+				state.NeuroDidAction = false;
+				client.sendContext("Map selected: " + mapName, false);
+				Sleep(1000);
 				break;
+			}
 
 			case STAGE_Race_Lobby_Start:
 				maxLobbySize = Mode_Menu::GetMaxLobbySize();
@@ -459,7 +461,7 @@ namespace Mode_Race
 			if (std::chrono::steady_clock::now() >= it->ResetTime)
 			{
 				int32_t d; float df;
-				if (it->MarblePtr && SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
+				if (it->MarblePtr && MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
 				{
 					// Restore the exact original mass we saved earlier!
 					it->MarblePtr->SetMassInKgs(it->OriginalMass);
@@ -480,7 +482,7 @@ namespace Mode_Race
 			{
 				int32_t d; float df;
 				// Validate the pointer is still alive before touching it
-				if (it->MarblePtr && SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
+				if (it->MarblePtr && MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(it->MarblePtr), &d, &df))
 				{
 					SDK::FVector normalScale;
 					normalScale.X = it->OriginalScale;
