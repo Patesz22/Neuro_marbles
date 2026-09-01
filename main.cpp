@@ -35,8 +35,10 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 	Logger::Init();
 
 	printf("==========================================\n");
-	printf("     MARBLES ON STREAM - NEURO BOT\n");
+	printf("     MARBLES ON STREAM - NEURO INTEGRATION\n");
 	printf("==========================================\n");
+
+	std::cout << "\n\nCurrently in WIDGET DEBUG mode!\nPress NUM1 to activate / deactivate the actual INTEGRATION!\n This will be removed on full release.\n\n";
 
 	std::cout << "Connecting to websocket..." << std::endl;
 	Mode_Race::InitComplexActions();
