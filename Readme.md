@@ -1,8 +1,5 @@
 # Neuro Marbles On Stream game integration based on <u>[neuro-sdk](https://github.com/VedalAI/neuro-sdk)</u> with <u>[neuro-sdk-c++](https://github.com/chris-pie/neuro-sdk-websocketpp)</u>
 
-## Features
-- todo
-
 ---
 ## Usage and Installation
 1. Download Marbles On Stream from Steam.
@@ -72,6 +69,8 @@ This project requires a C++ compiler compatible with C++17 or higher.
 ## License
 
 [MIT License](LICENSE)
+
+---
 
 ## Todo
 
