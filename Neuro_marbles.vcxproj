@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{474938c8-b737-4021-a9aa-78c997473cb7}</ProjectGuid>
+    <RootNamespace>Neuromarbles</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\local\boost_1_86_0;$(ProjectDir);$(ProjectDir)\SDK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\local\boost_1_86_0\lib64-msvc-14.3;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_WIN64;UE_BUILD_DEVELOPMENT;_CRT_SECURE_NO_WARNINGS;IS_PROGRAM=0;UE_PROJECT_NAME="Neuro_marbles";WITH_EDITOR=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\SDK;$(ProjectDir)Dependencies\OpenSSL\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\OpenSSL\lib\VC\x64\MD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libssl.lib;libcrypto.lib;ws2_32.lib;crypt32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Actions\Actions.cpp" />
+    <ClCompile Include="Actions\Actions_Complex.cpp" />
+    <ClCompile Include="Config\NeuroConfig.cpp" />
+    <ClCompile Include="Dependencies\OpenSSL\include\openssl\applink.c" />
+    <ClCompile Include="Gamemodes\Menu_functions.cpp" />
+    <ClCompile Include="Gamemodes\Race_functions.cpp" />
+    <ClCompile Include="Gamemodes\Royale.cpp" />
+    <ClCompile Include="Logging\Logging.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Gamemodes\Menu.cpp" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="Client\NeuroMarblesClient.cpp" />
+    <ClCompile Include="Gamemodes\Race.cpp" />
+    <ClCompile Include="SDK\Basic.cpp" />
+    <ClCompile Include="SDK\CommonUI_functions.cpp" />
+    <ClCompile Include="SDK\CoreUObject_functions.cpp" />
+    <ClCompile Include="SDK\Engine_functions.cpp" />
+    <ClCompile Include="SDK\MarblesOnStream_functions.cpp" />
+    <ClCompile Include="SDK\UMG_functions.cpp" />
+    <ClCompile Include="SDK\W_MOSButton_Default_functions.cpp" />
+    <ClCompile Include="SDK\W_MOSButton_Small_functions.cpp" />
+    <ClCompile Include="SDK\W_RaceUserFacingExperience_functions.cpp" />
+    <ClCompile Include="SDK\W_UserFacingExperienceDescription_functions.cpp" />
+    <ClCompile Include="SDK\W_UserFacingExperienceSelector_functions.cpp" />
+    <ClCompile Include="Twitch\Twitch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Actions\Actions_Complex.h" />
+    <ClInclude Include="Config\NeuroConfig.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\aes.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\asn1.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\asn1err.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\asn1t.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\async.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\asyncerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\bio.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\bioerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\blowfish.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\bn.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\bnerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\buffer.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\buffererr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\byteorder.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\camellia.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cast.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cmac.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cmp.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cmperr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cmp_util.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cms.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cmserr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\comp.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\comperr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\conf.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\conferr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\configuration.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\conftypes.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\conf_api.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\core.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\core_dispatch.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\core_names.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\core_object.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\crmf.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\crmferr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\crypto.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cryptoerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cryptoerr_legacy.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ct.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\cterr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\decoder.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\decodererr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\des.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\dh.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\dherr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\dsa.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\dsaerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\dtls1.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ebcdic.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ec.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ecdh.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ecdsa.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ecerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ech.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\encoder.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\encodererr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\engine.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\engineerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\err.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ess.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\esserr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\evp.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\evperr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\e_os2.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\e_ostime.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\fipskey.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\fips_names.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\hmac.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\hpke.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\http.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\httperr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\idea.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\indicator.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\kdf.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\kdferr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\lhash.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\macros.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\md2.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\md4.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\md5.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\mdc2.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ml_kem.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\modes.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\objects.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\objectserr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\obj_mac.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ocsp.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ocsperr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\opensslconf.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\opensslv.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ossl_typ.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\params.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\param_build.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pem.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pem2.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pemerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pkcs12.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pkcs12err.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pkcs7.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\pkcs7err.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\posix_time.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\proverr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\provider.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\prov_ssl.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\quic.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\rand.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\randerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\rc2.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\rc4.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\rc5.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ripemd.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\rsa.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\rsaerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\safestack.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\seed.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\self_test.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\sha.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\srp.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\srtp.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ssl.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ssl2.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ssl3.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\sslerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\sslerr_legacy.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\stack.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\store.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\storeerr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\symhacks.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\thread.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\tls1.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\trace.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ts.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\tserr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\txt_db.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\types.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\ui.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\uierr.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\whrlpool.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509err.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509v3.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509v3err.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509_acert.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509_vfy.h" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
+    <ClInclude Include="Dependencies\OpenSSL\include\openssl\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="FunctionHelpers\DynamicMemory.h" />
+    <ClInclude Include="Gamemodes\GameModes.h" />
+    <ClInclude Include="Gamemodes\Menu.h" />
+    <ClInclude Include="Gamemodes\Race.h" />
+    <ClInclude Include="GameState.h" />
+    <ClInclude Include="json\json.hpp" />
+    <ClInclude Include="Logging\Logging.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="Dependencies\NeuroGameSDKIXWebsocket.hpp" />
+    <ClInclude Include="Client\NeuroMarblesClient.h" />
+    <ClInclude Include="Twitch\Twitch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MDd\libcrypto.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MDd\libssl.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MD\legacy.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MD\libcrypto.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MD\libssl.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MD\p_minimal.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MD\p_test.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MTd\libcrypto.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MTd\libssl.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MT\libcrypto.def" />
+    <None Include="Dependencies\OpenSSL\lib\VC\x64\MT\libssl.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

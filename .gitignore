@@ -45,3 +45,5 @@ SDK.hpp
 UtfN.hpp
 /websocketpp
 /json
+Neuro_marbles.vcxproj.user
+/Dependencies/OpenSSL
