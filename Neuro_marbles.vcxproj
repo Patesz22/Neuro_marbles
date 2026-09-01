@@ -312,6 +312,7 @@
     <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509_vfy.h" />
     <ClInclude Include="Dependencies\OpenSSL\include\openssl\__DECC_INCLUDE_EPILOGUE.H" />
     <ClInclude Include="Dependencies\OpenSSL\include\openssl\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="FunctionHelpers\DynamicMemory.h" />
     <ClInclude Include="Gamemodes\GameModes.h" />
     <ClInclude Include="Gamemodes\Menu.h" />
     <ClInclude Include="Gamemodes\Race.h" />

@@ -24,7 +24,7 @@ namespace Mode_Race
                 SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
                 int32_t d; float df;
 
-                if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+                if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                     continue;
 
                 if (Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()) && !Obj->IsDefaultObject())
@@ -70,7 +70,7 @@ namespace Mode_Race
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF)) 
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
                 continue;
 
             if (!RaceMenu && Obj->IsA(SDK::UW_RaceUserFacingExperience_C::StaticClass()) && !Obj->IsDefaultObject())
@@ -140,7 +140,7 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
 
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -257,7 +257,7 @@ namespace Mode_Race
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             if (Obj->IsA(SDK::URaceResultsWidgetY2::StaticClass()) && !Obj->IsDefaultObject())
@@ -317,7 +317,7 @@ namespace Mode_Race
                 {
                     wchar_t tempBuffer[128] = { 0 };
                     size_t bytesToCopy = (nameCount - 1) * sizeof(wchar_t);
-                    if (SafeCopyMemory(tempBuffer, nameData, bytesToCopy))
+                    if (MemoryHelpers::SafeCopyMemory(tempBuffer, nameData, bytesToCopy))
                     {
                         resultsArray[placementIndex].PlayerName = std::wstring(tempBuffer, nameCount - 1);
                         bNameFound = true;
@@ -332,7 +332,7 @@ namespace Mode_Race
                     {
                         wchar_t tempBuffer[128] = { 0 };
                         size_t bytesToCopy = (fallbackCount - 1) * sizeof(wchar_t);
-                        if (SafeCopyMemory(tempBuffer, fallbackData, bytesToCopy))
+                        if (MemoryHelpers::SafeCopyMemory(tempBuffer, fallbackData, bytesToCopy))
                         {
                             resultsArray[placementIndex].PlayerName = std::wstring(tempBuffer, fallbackCount - 1);
                             bNameFound = true;
@@ -438,7 +438,7 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
 
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -484,7 +484,7 @@ namespace Mode_Race
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -531,7 +531,7 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t dummy; float dummyF;
 
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &dummy, &dummyF))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -604,7 +604,7 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
 
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -710,7 +710,7 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
 
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             if (Obj->IsA(SDK::AMarbleRaceGameMode::StaticClass()) && !Obj->IsDefaultObject())
@@ -734,7 +734,7 @@ namespace Mode_Race
             int32_t d; float df;
 
             // Memory safety check
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -764,7 +764,7 @@ namespace Mode_Race
 
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             if (Obj->IsDefaultObject())
@@ -887,7 +887,7 @@ namespace Mode_Race
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
 
             int32_t d; float df;
-            if (!Obj || !SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df)) 
+            if (!Obj || !MemoryHelpers::SafeRead4Bytes(reinterpret_cast<uintptr_t>(Obj), &d, &df))
                 continue;
 
             // Target the WorldSettings class where GlobalGravityZ lives

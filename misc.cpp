@@ -1,7 +1,39 @@
 #include "misc.h"
 #include "GameState.h"
+#include "main.h"
 #include <windows.h>
 
+namespace MemoryHelpers
+{
+    bool SafeRead4Bytes(uintptr_t address, int32_t* outInt, float* outFloat)
+    {
+        __try
+        {
+            *outInt = *reinterpret_cast<int32_t*>(address);
+            *outFloat = *reinterpret_cast<float*>(address);
+            return true;
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER)
+        {
+            return false;
+        }
+    }
+
+    bool SafeCopyMemory(void* destination, void* source, size_t size)
+    {
+        if (!source || !destination || size <= 0) return false;
+
+        __try
+        {
+            memcpy(destination, source, size);
+            return true;
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER)
+        {
+            return false;
+        }
+    }
+};
 
 void PressKey(char key)
 {
@@ -29,35 +61,6 @@ void PressKey(char key)
     else
     {
         printf("[ERROR] Could not find the UnrealWindow!\n");
-    }
-}
-
-bool SafeRead4Bytes(uintptr_t address, int32_t* outInt, float* outFloat)
-{
-    __try
-    {
-        *outInt = *reinterpret_cast<int32_t*>(address);
-        *outFloat = *reinterpret_cast<float*>(address);
-        return true;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        return false;
-    }
-}
-
-bool SafeCopyMemory(void* destination, void* source, size_t size)
-{
-    if (!source || !destination || size <= 0) return false;
-
-    __try
-    {
-        memcpy(destination, source, size);
-        return true;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        return false;
     }
 }
 

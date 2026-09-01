@@ -17,7 +17,7 @@
 
 #include "Dependencies/NeuroGameSDKIXWebsocket.hpp"
 #include "Client/NeuroMarblesClient.h"
-#include "misc.h"
+
 #include "json/json.hpp"
 #include "GameState.h"
 #include "Logging/Logging.h"
@@ -25,4 +25,5 @@
 #include "Actions/Actions_Complex.h"
 #include "Config/NeuroConfig.h"
 #include "Gamemodes/Race.h"
+#include "FunctionHelpers/DynamicMemory.h"
 

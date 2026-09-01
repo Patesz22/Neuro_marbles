@@ -1,8 +1,12 @@
 #pragma once
 #include "main.h"
 #include "MOSAPI_classes.hpp"
+#include "misc.h"
 
-extern bool SafeCopyMemory(void* destination, void* source, size_t size);
+//namespace MemoryHelpers
+//{
+//	extern bool SafeCopyMemory(void* destination, void* source, size_t size);
+//}
 
 namespace Mode_Race
 {

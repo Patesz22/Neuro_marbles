@@ -581,6 +581,9 @@
     <ClInclude Include="Dependencies\OpenSSL\include\openssl\x509v3err.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FunctionHelpers\DynamicMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\OpenSSL\lib\VC\x64\MD\legacy.def">
