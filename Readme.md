@@ -21,20 +21,32 @@
 # Nuero Marbles on Stream mod configuration
 # ============================================
 
-# WebSocket Connection Settings
+### WebSocket Connection Settings
 # These settings are only used, if the "NEURO_SDK_WS_URL" env variable is equal to "" or does not exists.
+# 0 is false, 1 is true
+WebSocketTLS1_2 = 0
 WebSocketIP = 127.0.0.1
 WebSocketPort = 8000
 
-# File Logging
+### File Logging
 # Use forward slashes (/) or double backslashes (\\)
 # LogDirectory = C:/Somefolder/Logs/
 LogDirectory = ./logs
 
-# Command Cooldowns (in seconds)
+### Command Cooldowns (in seconds)
 GravityCooldown = 60
 MassCooldown = 15
 KickCooldown = 1
+SizeCooldown = 15
+
+### Twitch configs for manual override from twitch chat in case something happens
+
+# The username of the channel from which the bot will read the messages
+# only lowercase
+TwitchChannelname = patesz_3
+# Who can trigger *any* of the manual actions
+# only lowercase
+AdminUsers = patesz_3,vedal987
 ```
 ---
 
