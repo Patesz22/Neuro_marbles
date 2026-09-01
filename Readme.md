@@ -1,8 +1,5 @@
 # Neuro Marbles On Stream game integration based on <u>[neuro-sdk](https://github.com/VedalAI/neuro-sdk)</u> with <u>[neuro-sdk-c++](https://github.com/chris-pie/neuro-sdk-websocketpp)</u>
 
-## Features
-- todo
-
 ---
 ## Usage and Installation
 1. Download Marbles On Stream from Steam.
@@ -73,6 +70,8 @@ This project requires a C++ compiler compatible with C++17 or higher.
 
 [MIT License](LICENSE)
 
+---
+
 ## Todo
 
 - [ ] more gamemodes
@@ -98,7 +97,7 @@ This project requires a C++ compiler compatible with C++17 or higher.
 - [x] ~~action for kicking player(s) + ~~~~send neuro context on joined players (action)~~
 - [x] ~~add config file support~~
 - [ ] increase the lobby size
-  - [ ] there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
-  - [ ] maybe ask the devs to allow us to use lobbies with more players
+  * there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
+  * maybe ask the devs to allow us to use lobbies with more players
 - [x] ~~Add twitch chat manual override for specific user~~
 - [x] ~~Add console and file logging~~
