@@ -72,3 +72,33 @@ This project requires a C++ compiler compatible with C++17 or higher.
 ## License
 
 [MIT License](LICENSE)
+
+## Todo
+
+- [ ] more gamemodes
+- [x] ~~Organize project files~~
+- [ ] support for community maps
+- [x] ~~change "force action menu navigation" to normal action based~~
+- [x] ~~send neuro context on race results (finished, DNF) - without context flooding (top 10 sent)~~
+- [x] ~~make camera automatically rotate on race start~~ **manual action**
+- [x] ~~action for "exit to main menu" after results~~
+- [x] ~~action for "next random race" after results~~
+- [ ] make the code "neuro proof"
+- [x] ~~send context on what's happening in game, so neuro can sort of "commentate"~~ **improvements needed**
+- [x] ~~increase the frequency of neuro getting context on alive/dead/finished players (without context flooding)~~ **improvements needed**
+- [ ] add modifier actions
+  - [x] ~~I've seen a SetGravity function eg.~~
+  - [x] ~~SetMassInKgs~~
+  - [x] ~~SetMarbleSize~~
+  - [ ] Investigate UCheatManager class
+  - [ ] GodMode
+  - [ ] BoostMarble
+  - [ ] DestroyMarble
+
+- [x] ~~action for kicking player(s) + ~~~~send neuro context on joined players (action)~~
+- [x] ~~add config file support~~
+- [ ] increase the lobby size
+  - [ ] there is a function for this, but the official max is 1000 players so increaseing it to 2k would be detected server side (ban probably)
+  - [ ] maybe ask the devs to allow us to use lobbies with more players
+- [x] ~~Add twitch chat manual override for specific user~~
+- [x] ~~Add console and file logging~~
